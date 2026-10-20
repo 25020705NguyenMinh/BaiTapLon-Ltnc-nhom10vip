@@ -1,4 +1,4 @@
-package TestMain;
+package vn.edu.auction.client;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
