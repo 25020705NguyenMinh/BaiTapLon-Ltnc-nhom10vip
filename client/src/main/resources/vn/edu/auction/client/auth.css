@@ -1,0 +1,79 @@
+
+.auth-root {
+    -fx-background-color: #f4f7fb;
+    -fx-font-family: "Arial";
+}
+
+.app-title {
+    -fx-font-size: 27px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #174ea6;
+}
+
+.subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #64748b;
+    -fx-padding: 0 0 12 0;
+}
+
+.field-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+.input-field {
+    -fx-background-color: white;
+    -fx-border-color: #d6deea;
+    -fx-border-radius: 7px;
+    -fx-background-radius: 7px;
+    -fx-padding: 11px;
+    -fx-font-size: 13px;
+}
+
+.input-field:focused {
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5px;
+}
+
+.primary-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px;
+    -fx-background-radius: 7px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #1e40af;
+}
+
+.auth-link {
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-underline: false;
+    -fx-cursor: hand;
+}
+
+.auth-link:hover {
+    -fx-text-fill: #1d4ed8;
+    -fx-underline: true;
+}
+
+.footer-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.message-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #dc2626;
+    -fx-text-alignment: center;
+}
