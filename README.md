@@ -1,5 +1,5 @@
 # Đăng nhập
-<img width="1916" height="1078" alt="image" src="https://github.com/user-attachments/assets/0e48535f-7f39-43da-bbf7-df61c8afa1cf" />
+<img width="1917" height="1005" alt="image" src="https://github.com/user-attachments/assets/f6d902a8-4679-43e7-be61-ff25544f6c3d" />
 
 # Lấy lại mật khẩu
 <img width="1915" height="1077" alt="image" src="https://github.com/user-attachments/assets/8f9d0abd-b3fb-4aaf-be3a-cc89c22125b0" />
