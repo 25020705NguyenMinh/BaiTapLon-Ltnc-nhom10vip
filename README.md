@@ -1,11 +1,22 @@
 # Đăng nhập
-<img width="1917" height="1005" alt="image" src="https://github.com/user-attachments/assets/f6d902a8-4679-43e7-be61-ff25544f6c3d" />
+<img width="1917" height="1013" alt="image" src="https://github.com/user-attachments/assets/c784b140-2620-4771-8d53-57e20b713ce3" />
 
+Mai tôi sẽ bổ xung logo Gg face, linkln
 # Lấy lại mật khẩu
-<img width="1915" height="1077" alt="image" src="https://github.com/user-attachments/assets/8f9d0abd-b3fb-4aaf-be3a-cc89c22125b0" />
+<img width="1917" height="996" alt="image" src="https://github.com/user-attachments/assets/95665316-6919-48f4-86e7-7dd4d9239fdd" />
 
+phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
 # Đăng ký tài khoản
-<img width="1911" height="1078" alt="image" src="https://github.com/user-attachments/assets/0b9d07ad-86f1-47b4-bd6a-4120d7fa2716" />
+<img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/a996acd8-b611-4658-b4ed-5e10da64e6a4" />
+
+có thích thêm tranh ảnh gì không chứ tôi thấy ok rồi
+
+<img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/edd79f39-459b-419b-87c1-e2c4b678bd38" />
+
+phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
+
+<img width="1917" height="1016" alt="image" src="https://github.com/user-attachments/assets/dd00139e-729d-4bbf-9cf2-37e44ffbd03a" />
+
 
 ##  Định hướng phát triển
 
