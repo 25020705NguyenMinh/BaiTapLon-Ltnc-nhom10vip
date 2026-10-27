@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" prefHeight="620" prefWidth="420" spacing="12" styleClass="auth-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.edu.auction.client.AuthController">
+
+    <padding>
+        <Insets bottom="25" left="40" right="40" top="20" />
+    </padding>
+    <!-- MỚI: chọn ngôn ngữ -->
+    <HBox alignment="CENTER_RIGHT">
+        <ComboBox fx:id="languageComboBox" focusTraversable="false" styleClass="language-combo" />
+    </HBox>
+
+    <Label styleClass="app-title" text="%app.title" />
+
+
+
+
+
+    <Label maxWidth="Infinity" styleClass="page-title" text="%signupMethod.title" textAlignment="CENTER" wrapText="true" />
+    <!-- Nút Google -->
+    <Button maxWidth="Infinity" onAction="#handleGoogleLogin" styleClass="social-button" text="Continue with Google" HBox.hgrow="ALWAYS">
+        <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@./icons/gglogo.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <!-- Nút Facebook -->
+    <Button maxWidth="Infinity" onAction="#handleFacebookLogin" styleClass="social-button" text="Continue with Facebook" HBox.hgrow="ALWAYS">
+        <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@./icons/Facebook.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <!-- Nút LinkedIn -->
+    <Button maxWidth="Infinity" onAction="#handleLinkedinLogin" styleClass="social-button" text="Continue with LinkedIn" HBox.hgrow="ALWAYS">
+        <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@./icons/linkedIn.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+    <!-- Đường kẻ HOẶC -->
+    <HBox alignment="CENTER" spacing="10">
+        <Separator HBox.hgrow="ALWAYS" />
+        <Label styleClass="footer-text" text="%common.or" />
+        <Separator HBox.hgrow="ALWAYS" />
+    </HBox>
+    <!-- Đăng ký bằng email -->
+    <VBox spacing="6">
+        <TextField fx:id="emailField" onAction="#handleEmailContinue" promptText="%email.prompt" styleClass="input-field" />
+        <Label fx:id="emailError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true" />
+    </VBox>
+
+    <Label fx:id="messageLabel" maxWidth="320" styleClass="message-label" wrapText="true" />
+
+    <Button maxWidth="Infinity" onAction="#handleEmailContinue" styleClass="primary-button" text="%common.continue" />
+
+    <Hyperlink onAction="#openLoginView" styleClass="auth-link" text="%common.back" />
+
+</VBox>
