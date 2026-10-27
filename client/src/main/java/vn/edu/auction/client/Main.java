@@ -1,28 +1,34 @@
 package vn.edu.auction.client;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.util.Objects;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage stage) {
-        Label title = new Label("Online Auction System");
-
-        Button button = new Button("Start Auction App");
-
-        button.setOnAction(event ->
-                title.setText("Application is running!")
+    public void start(Stage stage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                Main.class.getResource(
+                        "/browse-view.fxml"
+                )
         );
 
-        VBox root = new VBox(15, title, button);
-        root.setStyle("-fx-padding: 30;");
+        Parent root = loader.load();
+        Scene scene = new Scene(root, 950, 600);
 
-        Scene scene = new Scene(root, 500, 300);
+        scene.getStylesheets().add(
+                Objects.requireNonNull(
+                        Main.class.getResource(
+                                "/css/browse.css"
+                        )
+                ).toExternalForm()
+        );
 
         stage.setTitle("Online Auction System");
         stage.setScene(scene);

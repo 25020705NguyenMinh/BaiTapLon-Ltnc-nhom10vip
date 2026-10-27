@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="vn.edu.auction.client.controller.AuctionListController"
+      spacing="16"
+      styleClass="screen">
+
+    <Label text="Danh sách phiên đấu giá" styleClass="screen-title"/>
+
+    <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="itemNameColumn"
+                         text="Sản phẩm"
+                         prefWidth="280"/>
+            <TableColumn fx:id="currentPriceColumn"
+                         text="Giá hiện tại"
+                         prefWidth="180"/>
+            <TableColumn fx:id="endTimeColumn"
+                         text="Thời gian kết thúc"
+                         prefWidth="240"/>
+            <TableColumn fx:id="statusColumn"
+                         text="Trạng thái"
+                         prefWidth="140"/>
+        </columns>
+    </TableView>
+
+    <Button text="Chọn phiên đấu giá"
+            onAction="#handleOpenAuction"
+            styleClass="primary-button"/>
+
+    <Label fx:id="messageLabel" styleClass="message-label"/>
+</VBox>
