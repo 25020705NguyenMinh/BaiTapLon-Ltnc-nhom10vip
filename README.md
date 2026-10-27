@@ -3,7 +3,7 @@
 
 Mai tôi sẽ bổ xung logo Gg face, linkln
 # Lấy lại mật khẩu
-<img width="1917" height="996" alt="image" src="https://github.com/user-attachments/assets/95665316-6919-48f4-86e7-7dd4d9239fdd" />
+<img width="1915" height="1017" alt="image" src="https://github.com/user-attachments/assets/322127b2-793b-485e-94cc-2eb5624351f5" />
 
 phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
 # Đăng ký tài khoản
