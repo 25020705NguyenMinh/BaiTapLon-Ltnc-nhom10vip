@@ -1,5 +1,7 @@
 package vn.edu.auction.shared.dto;
 
+import vn.edu.auction.shared.enums.AuctionStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,7 +19,10 @@ public class AuctionResponse {
     private LocalDateTime endTime;
     private AuctionStatus status;
 
-    public AuctionResponse(Long id, Long itemId, String itemName, BigDecimal startingPrice, BigDecimal currentPrice, Long highestBidderId, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status){
+    public AuctionResponse(Long id, Long itemId, String itemName,
+                           BigDecimal startingPrice, BigDecimal currentPrice,
+                           Long highestBidderId, LocalDateTime startTime,
+                           LocalDateTime endTime, AuctionStatus status) {
         this.id = id;
         this.itemId = itemId;
         this.itemName = itemName;
@@ -37,7 +42,7 @@ public class AuctionResponse {
     public BigDecimal getStartingPrice(){return startingPrice;}
     public BigDecimal getCurrentPrice(){return currentPrice;}
     public Long getHighestBidderId(){return highestBidderId;}
-    public LocalDateTime getStarTime(){return startTime;}
+    public LocalDateTime getStartTime(){return startTime;}
     public LocalDateTime getEndTime(){return endTime;}
     public AuctionStatus getStatus(){return status;}
 

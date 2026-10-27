@@ -1,5 +1,7 @@
 package vn.edu.auction.shared.dto;
 
+import vn.edu.auction.shared.enums.ItemStatus;
+
 import java.math.BigDecimal;
 
 import vn.edu.auction.shared.enums.ItemStatus;
@@ -13,7 +15,8 @@ public class ItemResponse {
     private BigDecimal startingPrice;
     private ItemStatus status;
 
-    public ItemResponse(Long id, Long sellerId, String name, String description, BigDecimal startingPrice, ItemStatus status){
+    public ItemResponse(Long id, Long sellerId, String name, String description,
+                        BigDecimal startingPrice, ItemStatus status) {
         this.id = id;
         this.sellerId = sellerId;
         this.name = name;
