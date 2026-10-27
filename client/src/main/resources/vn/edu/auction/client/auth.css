@@ -97,3 +97,155 @@
     -fx-text-fill: #dc2626;
     -fx-text-alignment: center;
 }
+   /*dùng cho togglepassword*/
+   .password-container {
+       -fx-background-color: white;
+       -fx-border-color: #d6deea;
+       -fx-border-radius: 7px;
+       -fx-background-radius: 7px;
+   }
+
+.password-container:focused-within {
+    -fx-border-color: #2563eb;
+}
+
+.password-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 7px;
+    -fx-padding: 11px;
+    -fx-font-size: 13px;
+}
+
+.eye-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 15px;
+    -fx-padding: 8px 10px;
+}
+
+
+/* Chữ lỗi đỏ dưới từng ô nhập */
+.field-error {
+    -fx-font-size: 12px;
+    -fx-text-fill: #dc2626;
+}
+
+/* Viền đỏ khi ô bị lỗi (class này được thêm/xóa bằng code Java) */
+.input-field.input-error,
+.input-field.input-error:focused {
+    -fx-border-color: #dc2626;
+}
+
+.password-container.input-error {
+    -fx-border-color: #dc2626;
+}
+
+/* Ô chỉ đọc (email, loại tài khoản ở trang 3) */
+.readonly-field {
+    -fx-background-color: #eef2f7;
+    -fx-text-fill: #64748b;
+}
+
+/* Ô chọn ngôn ngữ */
+.language-combo {
+    -fx-background-color: white;
+    -fx-border-color: #d6deea;
+    -fx-border-radius: 7px;
+    -fx-background-radius: 7px;
+    -fx-font-size: 12px;
+    -fx-padding: 0 2 0 2;
+    -fx-cursor: hand;
+}
+
+/* Tiêu đề từng trang đăng ký */
+.page-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+    -fx-padding: 0 0 6 0;
+}
+
+/* Thẻ chọn Buyer / Seller */
+.choice-card {
+    -fx-background-color: white;
+    -fx-border-color: #d6deea;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 16px;
+    -fx-cursor: hand;
+}
+
+.choice-card-selected {
+    -fx-background-color: #eff6ff;
+    -fx-border-color: #2563eb;
+    -fx-border-width: 1.5px;
+}
+
+.choice-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+.choice-desc {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+/* Kiểu chung cho các nút chỉ chứa icon mạng xã hội */
+.social-button {
+    -fx-background-color: white;
+    -fx-text-fill: #1e293b;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 16px;
+    -fx-cursor: hand;
+
+    /* Quan trọng: Căn đều nội dung nút sang trái, icon đứng trước chữ và có khoảng cách */
+    -fx-alignment: CENTER_LEFT;       /* Căn toàn bộ nội dung nút về bên trái */
+    -fx-graphic-text-gap: 55px;       /* Khoảng cách đẩy chữ ra gần chính giữa nút (tăng giảm số này tùy ý bạn) */
+}
+
+.social-button:hover {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #94a3b8;
+}
+
+/* Định nghĩa kích thước ảnh icon bên trong nút cho cân đối *//* Ép kích thước ảnh hiển thị nhỏ lại (ví dụ: 20x20 pixel) và giữ đúng tỷ lệ */
+.social-icon-button .image-view {
+    -fx-fit-width: 20px;
+    -fx-fit-height: 20px;
+    -fx-preserve-ratio: true;
+}
+
+/* Gắn icon PNG riêng cho từng nút */
+.google-btn {
+    -fx-graphic: url("./icons/gglogo.png");
+}
+
+.facebook-btn {
+    -fx-graphic: url("./icons/Facebook.png");
+}
+
+.linkedin-btn {
+    -fx-graphic: url("./icons/linkedIn.png");
+}/* Class chuyên biệt cho nút tròn không viền */
+.social-icon-circle {
+    -fx-background-color: transparent; /* Làm trong suốt nền */
+    -fx-border-color: transparent;     /* Xóa màu viền */
+    -fx-padding: 0;                    /* Xóa khoảng cách mặc định của nút */
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+/* Hiệu ứng khi di chuột qua (làm mờ nhẹ đi một chút thay vì đổi màu nền) */
+.social-icon-circle:hover {
+    -fx-opacity: 0.8;
+}
+
+.social-icon-circle:pressed {
+    -fx-opacity: 0.6;
+}

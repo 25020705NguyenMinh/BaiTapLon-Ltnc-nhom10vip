@@ -1,58 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="vn.edu.auction.client.AuthController"
-      alignment="CENTER"
-      spacing="16"
-      prefWidth="420"
-      prefHeight="500"
-      styleClass="auth-root">
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" prefHeight="680" prefWidth="420" spacing="12" styleClass="auth-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.edu.auction.client.AuthController">
 
     <padding>
-        <Insets top="35" right="40" bottom="35" left="40"/>
+        <Insets bottom="25" left="40" right="40" top="20" />
     </padding>
 
-    <Label text="TECH AUCTION" styleClass="app-title"/>
-    <Label text="Chào mừng bạn trở lại" styleClass="subtitle"/>
+    <!-- MỚI: chọn ngôn ngữ -->
+    <HBox alignment="CENTER_RIGHT">
+        <ComboBox fx:id="languageComboBox" focusTraversable="false" styleClass="language-combo" />
+    </HBox>
 
-    <VBox spacing="7">
-        <Label text="Email" styleClass="field-label"/>
-        <TextField fx:id="emailField"
-                   promptText="Nhập địa chỉ email"
-                   styleClass="input-field"/>
+    <Label styleClass="app-title" text="%app.title" />
+    <Label styleClass="subtitle" text="%login.subtitle" />
+
+    <!-- Email + lỗi dưới ô -->
+    <VBox spacing="6">
+        <Label styleClass="field-label" text="%email.label" />
+        <TextField fx:id="emailField" onAction="#handleLogin" promptText="%email.prompt" styleClass="input-field" />
+        <Label fx:id="emailError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true" />
     </VBox>
 
-    <VBox spacing="7">
-        <Label text="Mật khẩu" styleClass="field-label"/>
-        <PasswordField fx:id="passwordField"
-                       promptText="Nhập mật khẩu"
-                       styleClass="input-field"/>
+    <!-- Mật khẩu + lỗi dưới ô -->
+    <VBox spacing="6">
+        <Label styleClass="field-label" text="%password.label" />
+        <HBox fx:id="passwordContainer" alignment="CENTER" spacing="0" styleClass="password-container">
+            <PasswordField fx:id="passwordField" onAction="#handleLogin" promptText="%password.prompt" styleClass="password-input" HBox.hgrow="ALWAYS" />
+
+            <TextField fx:id="passwordVisibleField" managed="false" onAction="#handleLogin" promptText="%password.prompt" styleClass="password-input" visible="false" HBox.hgrow="ALWAYS" />
+
+            <Button fx:id="togglePasswordButton" focusTraversable="false" onAction="#togglePasswordVisibility" styleClass="eye-button" />
+        </HBox>
+        <Label fx:id="passwordError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true" />
     </VBox>
 
-    <Label fx:id="messageLabel"
-           wrapText="true"
-           maxWidth="320"
-           styleClass="message-label"/>
+    <HBox alignment="CENTER_RIGHT">
+        <Hyperlink onAction="#openResetPasswordView" styleClass="auth-link" text="%password.forgot" />
+    </HBox>
 
-    <Button fx:id="loginButton"
-            text="Đăng nhập"
-            onAction="#handleLogin"
-            maxWidth="Infinity"
-            styleClass="primary-button"/>
+    <!-- Thông báo chung (lỗi từ server...) -->
+    <Label fx:id="messageLabel" maxWidth="320" styleClass="message-label" wrapText="true" />
 
-    <VBox alignment="CENTER" spacing="5">
-        <Label text="Bạn chưa có tài khoản?" styleClass="footer-text"/>
-        <Hyperlink text="Đăng ký ngay"
-                   onAction="#openRegisterView"
-                   styleClass="auth-link"/>
+    <Button fx:id="loginButton" maxWidth="Infinity" onAction="#handleLogin" styleClass="primary-button" text="%login.button" />
+
+    <!-- Đường kẻ HOẶC -->
+    <HBox alignment="CENTER" spacing="10">
+        <Separator HBox.hgrow="ALWAYS" />
+        <Label styleClass="footer-text" text="%common.or" />
+        <Separator HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- 3 nút mạng xã hội dạng icon tròn -->
+    <HBox alignment="CENTER" spacing="15">
+        <!-- Nút Facebook -->
+        <Button onAction="#handleFacebookLogin" styleClass="social-icon-circle">
+            <graphic>
+                <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@./icons/Face_circle.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+
+        <!-- Nút Google -->
+        <Button onAction="#handleGoogleLogin" styleClass="social-icon-circle">
+            <graphic>
+                <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@./icons/gglogo.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+
+        <!-- Nút LinkedIn -->
+        <Button onAction="#handleLinkedinLogin" styleClass="social-icon-circle">
+            <graphic>
+                <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@./icons/linkedIn_circle.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
+    <VBox alignment="CENTER" spacing="2">
+        <Label styleClass="footer-text" text="%login.noAccount" />
+        <Hyperlink onAction="#openSignupMethodView" styleClass="auth-link" text="%login.createAccount" />
     </VBox>
+   <ImageView fitHeight="19.0" fitWidth="63.0" pickOnBounds="true" preserveRatio="true" />
 
 </VBox>
