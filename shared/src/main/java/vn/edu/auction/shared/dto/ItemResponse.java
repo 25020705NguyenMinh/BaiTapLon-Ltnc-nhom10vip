@@ -4,6 +4,8 @@ import vn.edu.auction.shared.enums.ItemStatus;
 
 import java.math.BigDecimal;
 
+import vn.edu.auction.shared.enums.ItemStatus;
+
 public class ItemResponse {
 
     private Long id;
