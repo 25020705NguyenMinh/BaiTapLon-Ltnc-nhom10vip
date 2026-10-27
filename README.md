@@ -7,15 +7,14 @@ Mai tôi sẽ bổ xung logo Gg face, linkln
 
 phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
 # Đăng ký tài khoản
-<img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/a996acd8-b611-4658-b4ed-5e10da64e6a4" />
 
-có thích thêm tranh ảnh gì không chứ tôi thấy ok rồi
+<img width="1912" height="1020" alt="image" src="https://github.com/user-attachments/assets/f2e05237-67eb-449f-9858-d5c07c89104f" />
 
-<img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/edd79f39-459b-419b-87c1-e2c4b678bd38" />
+ok
+<img width="1917" height="1018" alt="image" src="https://github.com/user-attachments/assets/2080c230-49dc-4bda-aa1e-89eec79a23f2" />
 
 phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
 
-<img width="1917" height="1016" alt="image" src="https://github.com/user-attachments/assets/dd00139e-729d-4bbf-9cf2-37e44ffbd03a" />
 
 
 ##  Định hướng phát triển
