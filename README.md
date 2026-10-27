@@ -1,9 +1,9 @@
 # Đăng nhập
-<img width="1917" height="1013" alt="image" src="https://github.com/user-attachments/assets/c784b140-2620-4771-8d53-57e20b713ce3" />
+<img width="1915" height="1017" alt="image" src="https://github.com/user-attachments/assets/4d524765-3b80-464a-8f41-8b94efb0c6a4" />
 
 Mai tôi sẽ bổ xung logo Gg face, linkln
 # Lấy lại mật khẩu
-<img width="1915" height="1017" alt="image" src="https://github.com/user-attachments/assets/322127b2-793b-485e-94cc-2eb5624351f5" />
+<img width="1917" height="1021" alt="image" src="https://github.com/user-attachments/assets/7d662825-4e04-4a2a-9f0b-81efaf35877e" />
 
 phần này cần xác thực OTP và kiểm tra đầu vào xem đúng cú pháp gmail chưa
 # Đăng ký tài khoản
