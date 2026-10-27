@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" prefHeight="640" prefWidth="420" spacing="12" styleClass="auth-root"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.auction.client.AuthController">
+
+    <padding>
+        <Insets bottom="25" left="40" right="40" top="30"/>
+    </padding>
+    <HBox alignment="CENTER_RIGHT">
+        <ComboBox fx:id="languageComboBox" focusTraversable="false" styleClass="language-combo" />
+    </HBox>
+    <Label styleClass="app-title" text="%app.title"/>
+    <Label maxWidth="Infinity" styleClass="page-title" text="%register.title" textAlignment="CENTER" wrapText="true"/>
+
+    <!-- Email đã nhập ở trang 2 (chỉ đọc) -->
+    <VBox spacing="6">
+        <Label styleClass="field-label" text="%email.label"/>
+        <TextField fx:id="emailField" editable="false" focusTraversable="false"
+                   styleClass="input-field readonly-field"/>
+    </VBox>
+
+    <!-- Họ / Tên nằm cạnh nhau -->
+    <HBox spacing="12">
+        <VBox prefWidth="150" spacing="6" HBox.hgrow="ALWAYS">
+            <Label styleClass="field-label" text="%register.firstName"/>
+            <TextField fx:id="firstNameField" promptText="%register.firstName" styleClass="input-field"/>
+            <Label fx:id="firstNameError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true"/>
+        </VBox>
+        <VBox prefWidth="150" spacing="6" HBox.hgrow="ALWAYS">
+            <Label styleClass="field-label" text="%register.lastName"/>
+            <TextField fx:id="lastNameField" promptText="%register.lastName" styleClass="input-field"/>
+            <Label fx:id="lastNameError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true"/>
+        </VBox>
+    </HBox>
+
+    <!-- Mật khẩu (có nút con mắt) -->
+    <VBox spacing="6">
+        <Label styleClass="field-label" text="%password.label"/>
+        <HBox fx:id="passwordContainer" alignment="CENTER" spacing="0" styleClass="password-container">
+            <PasswordField fx:id="passwordField" onAction="#handleRegister" promptText="%register.password.prompt"
+                           styleClass="password-input" HBox.hgrow="ALWAYS"/>
+
+            <TextField fx:id="passwordVisibleField" managed="false" onAction="#handleRegister"
+                       promptText="%register.password.prompt" styleClass="password-input" visible="false"
+                       HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="togglePasswordButton" focusTraversable="false" onAction="#togglePasswordVisibility"
+                    styleClass="eye-button"/>
+        </HBox>
+        <Label fx:id="passwordError" managed="false" maxWidth="Infinity" styleClass="field-error" visible="false" wrapText="true"/>
+    </VBox>
+
+    <Label fx:id="messageLabel" maxWidth="320" styleClass="message-label" wrapText="true"/>
+
+    <Button fx:id="registerButton" maxWidth="Infinity" onAction="#handleRegister" styleClass="primary-button"
+            text="%register.button"/>
+
+    <Hyperlink onAction="#openSignupMethodView" styleClass="auth-link" text="%common.back"/>
+
+</VBox>
