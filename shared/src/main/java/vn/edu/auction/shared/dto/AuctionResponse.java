@@ -5,8 +5,6 @@ import vn.edu.auction.shared.enums.AuctionStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import vn.edu.auction.shared.enums.AuctionStatus;
-
 public class AuctionResponse {
 
     private Long id;
