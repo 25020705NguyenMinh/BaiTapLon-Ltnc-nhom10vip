@@ -1,4 +1,4 @@
-package vn.edu.auction.client.controller;
+package vn.edu.auction.client.browse;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

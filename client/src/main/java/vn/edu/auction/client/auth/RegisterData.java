@@ -1,4 +1,4 @@
-package vn.edu.auction.client;
+package vn.edu.auction.client.auth;
 
 /**
  * FILE MỚI - giữ dữ liệu người dùng đã chọn khi đi qua 3 trang đăng ký:
