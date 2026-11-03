@@ -3,6 +3,8 @@ package vn.edu.auction.shared.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import vn.edu.auction.shared.enums.BidStatus;
+
 public class BidResponse {
 
     private Long bidId;
@@ -10,10 +12,10 @@ public class BidResponse {
     private Long bidderId;
     private BigDecimal amount;
     private LocalDateTime bidTime;
-    private int status;
+    private BidStatus status;
     private String message;
 
-    public BidResponse(Long bidId, Long auctionId, Long bidderId, BigDecimal amount, LocalDateTime bidTime, int status, String message){
+    public BidResponse(Long bidId, Long auctionId, Long bidderId, BigDecimal amount, LocalDateTime bidTime, BidStatus status, String message){
         this.bidId = bidId;
         this.auctionId = auctionId;
         this.bidderId = bidderId;
@@ -30,7 +32,7 @@ public class BidResponse {
     public Long getBidderId(){return bidderId;}
     public BigDecimal getAmount(){return amount;}
     public LocalDateTime getBidTime(){return bidTime;}
-    public int getStatus(){return status;}
+    public BidStatus getStatus(){return status;}
     public String getMessage(){return message;}
 
     public void setBidId(Long newBidId){this.bidId = newBidId;}
@@ -38,7 +40,7 @@ public class BidResponse {
     public void setBidderId(Long newBidderId){this.bidderId = newBidderId;}
     public void setAmount(BigDecimal newAmount){this.amount = newAmount;}
     public void setBidTime(LocalDateTime newBidTime){this.bidTime = newBidTime;}
-    public void setStatus(int newStatus){this.status = newStatus;}
+    public void setStatus(BidStatus newStatus){this.status = newStatus;}
     public void setMessage(String newMessage){this.message = newMessage;}
     
 }
