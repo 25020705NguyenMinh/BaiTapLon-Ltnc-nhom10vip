@@ -1,5 +1,6 @@
 package vn.edu.auction.client.model;
 
+import vn.edu.auction.shared.dto.AuthResponse;
 /**
  * Lớp Singleton quản lý phiên làm việc (Session) của người dùng ở phía Client.
  * Lưu trạng thái đăng nhập trong bộ nhớ và không lưu mật khẩu ra file[cite: 1, 2].
@@ -30,12 +31,20 @@ public class SessionData {
     /**
      * Cập nhật thông tin session sau khi đăng nhập thành công[cite: 2].
      */
-    public void setSession(Long userId, String fullName, String email, String role, String token) {
-        this.userId = userId;
-        this.fullName = fullName;
-        this.email = email;
-        this.role = role;
-        this.token = token;
+    /**
+     * Nhận thẳng AuthResponse của server.
+     * VÌ SAO: dùng đúng DTO chung, không tự tạo cấu trúc khác, nên server thêm/sửa field
+     * thì chỉ cần sửa ở đây.
+     */
+    public void setSession(AuthResponse response) {
+        if (response == null) {
+            throw new IllegalArgumentException("AuthResponse không được null");
+        }
+        this.userId = response.getUserId();
+        this.fullName = response.getFullName();
+        this.email = response.getEmail();
+        this.role = response.getRole();
+        this.token = response.getToken();
     }
 
     /**

@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 import vn.edu.auction.client.model.SessionData;
 
 import java.io.IOException;
-
+import vn.edu.auction.client.I18n;
 /**
  * Bộ điều hướng dùng chung cho toàn bộ ứng dụng Client[cite: 3].
  * Quản lý việc chuyển đổi Scene trên Stage chính thay vì tạo Stage mới tùy tiện[cite: 3].
@@ -25,7 +25,7 @@ public class NavigationController {
      */
     public static void showView(String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(NavigationController.class.getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(NavigationController.class.getResource(fxmlPath), I18n.getBundle());
             Parent root = loader.load();
             
             if (primaryStage != null) {
@@ -56,6 +56,6 @@ public class NavigationController {
      * Chuyển sang màn hình Đăng nhập[cite: 2].
      */
     public static void showLogin() {
-        showView("/vn/edu/auction/client/fxml/login-view.fxml", "Đăng Nhập");
+        showView("/vn/edu/auction/client/fxml/auth/login-view.fxml", I18n.get("title.login"));
     }
 }

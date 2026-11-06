@@ -1,8 +1,11 @@
 package vn.edu.auction.client.auth;
 
+
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -16,8 +19,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import vn.edu.auction.client.I18n;
+import vn.edu.auction.client.api.AuthApiClient;
+import vn.edu.auction.client.controller.NavigationController;
+import vn.edu.auction.client.model.SessionData;
 import vn.edu.auction.client.navigation.Navigator;
+import vn.edu.auction.shared.dto.AuthResponse;
+import vn.edu.auction.shared.dto.LoginRequest;
+import vn.edu.auction.shared.dto.RegisterRequest;
+import vn.edu.auction.shared.enums.UserRole;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -25,7 +36,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
+
+import static java.util.concurrent.CompletableFuture.runAsync;
 
 public class AuthController {
 
@@ -69,6 +84,17 @@ public class AuthController {
     // Mặc định là login vì Main mở trang login đầu tiên.
     private static String currentFxml = "login-view.fxml";
     private static String currentTitleKey = "title.login";
+    // [3] Màu chữ thông báo thành công (mặc định messageLabel màu đỏ trong CSS)
+    private static final String SUCCESS_STYLE = "-fx-text-fill: #16a34a;";
+
+    // [3] Dùng System.Logger để ghi chi tiết lỗi ra CONSOLE cho lập trình viên,
+    // còn giao diện chỉ hiện câu thông báo dễ hiểu (không hiện stack trace).
+    private static final System.Logger LOG = System.getLogger(AuthController.class.getName());
+
+    // [3] static final: dùng chung 1 đối tượng cho mọi màn hình auth.
+    // VÌ SAO: mỗi lần chuyển trang JavaFX tạo controller mới; nếu `new AuthApiClient()` trong
+    // controller thì mỗi lần lại tạo thêm 1 HttpClient (tốn luồng và bộ nhớ).
+    private static final AuthApiClient AUTH_API = new AuthApiClient();
 
     // ====================================================================
     // 2. KHỞI TẠO
@@ -150,18 +176,47 @@ public class AuthController {
             return;
         }
 
-        String email = emailField.getText().trim();
-        String password = passwordField.getText();
+        // Dựng request ngay trên luồng giao diện (đọc ô nhập chỉ được làm ở đây);
+        // luồng nền chỉ nhận request đã dựng sẵn.
+        LoginRequest request = new LoginRequest(
+                emailField.getText().trim(),
+                passwordField.getText());
 
-        // TODO giai đoạn 3: gọi API đăng nhập bằng email + password
-        showMessage(I18n.get("message.api.pending"));
+        runAsync(() -> {
+            try {
+                return AUTH_API.login(request);
+            } catch (AuthApiClient.ApiException e) {
+                throw new RuntimeException(e);
+            }
+        }, this::onLoginSuccess);
     }
+    private void onLoginSuccess(AuthResponse response) {
+        Stage stage = findStage();
+        if (stage == null) {
+            showMessage(I18n.get("error.openView"));
+            return;
+        }
+        // 1) Lưu AuthResponse (có token) vào phiên để các màn hình sau dùng gọi API.
+        SessionData.getInstance().setSession(response);
 
+        // 2) Xóa mật khẩu khỏi ô nhập. VÌ SAO: không để mật khẩu nằm lại trong bộ nhớ giao diện
+        //    lâu hơn cần thiết. Mật khẩu cũng không được lưu ở SessionData hay RegisterData.
+        passwordField.clear();
+        RegisterData.reset();
+
+        // 3) Báo cho các bộ điều hướng biết cửa sổ chính, rồi chuyển tới trang chủ.
+        //    VÌ SAO set cả hai: Main chưa gọi setStage/setPrimaryStage; thiếu bước này
+        //    showHome() không làm gì vì stage = null, và đăng xuất cũng hỏng theo.
+        Navigator.setStage(stage);
+        NavigationController.setPrimaryStage(stage);
+        NavigationController.showHome();
+    }
     @FXML
     private void handleGoogleLogin() {
         // TODO: code đăng nhập Google
         showMessage(I18n.get("message.social.pending"));
     }
+    /** Chạy trên luồng giao diện sau khi server báo đăng nhập thành công. */
 
     @FXML
     private void handleFacebookLogin() {
@@ -201,14 +256,129 @@ public class AuthController {
         }
 
         String fullName = firstNameField.getText().trim() + " " + lastNameField.getText().trim();
-        String email = RegisterData.email;
-        String role = RegisterData.role;
-        String password = passwordField.getText();
+        String email = RegisterData.email.trim();
 
-        // TODO giai đoạn 3: gọi API đăng ký với fullName, email, password, role
-        showMessage(I18n.get("message.api.pending"));
+        // Dùng đúng RegisterRequest trong module shared để gửi cho server.
+        RegisterRequest request = new RegisterRequest(
+                fullName,
+                email,
+                passwordField.getText(),
+                parseRole(RegisterData.role));
+
+        runAsync(() -> {
+            try {
+                return AUTH_API.register(request);
+            } catch (AuthApiClient.ApiException e) {
+                throw new RuntimeException(e);
+            }
+        }, response -> onRegisterSuccess(email));
     }
 
+    /**
+     * Đăng ký xong: hiện thông báo thành công, rồi chuyển về trang đăng nhập.
+     * VÌ SAO không tự đăng nhập luôn dù server có trả token: đề yêu cầu "hiển thị thành công";
+     * để người dùng tự đăng nhập là luồng quen thuộc, và token chỉ được lưu ở một chỗ (handleLogin).
+     */
+    private void onRegisterSuccess(String email) {
+        passwordField.clear();
+        showSuccess(I18n.get("message.register.success"));
+
+        // Khóa nút trong lúc chờ chuyển trang để người dùng không bấm đăng ký lần 2 (sẽ bị 409).
+        registerButton.setDisable(true);
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
+        pause.setOnFinished(e -> {
+            RegisterData.reset();
+            // Giữ lại email để trang đăng nhập điền sẵn (initialize() đọc RegisterData.email)
+            RegisterData.email = email;
+            switchView("login-view.fxml", "title.login");
+        });
+        pause.play();
+    }
+
+    // RegisterData.role là chuỗi. Chuyển sang enum của shared.
+    // VÌ SAO có nhánh dự phòng: nếu chuỗi lạ , vẫn đăng ký được với vai trò
+    // mặc định BIDDER thay vì văng lỗi. Server cũng cấm tự đăng ký ADMIN.
+    private UserRole parseRole(String role) {
+        try {
+            return UserRole.valueOf(role);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return UserRole.BIDDER;
+        }
+    }
+
+    // ====================================================================
+    // 6. GỌI API Ở LUỒNG NỀN  [MỚI]
+    // ====================================================================
+    /**
+     * Chạy lời gọi API ở luồng riêng rồi trả kết quả về luồng giao diện.
+     *
+     * VÌ SAO KHÔNG GỌI TRỰC TIẾP: gọi mạng chặn luồng JavaFX tới 10 giây (khi server chậm hoặc
+     * tắt) thì cửa sổ đứng hình. Task chạy nền và gọi lại trên luồng giao diện, nên an toàn
+     * khi cập nhật Label/Scene.
+     */
+    private void runAsync(Callable<AuthResponse> apiCall, Consumer<AuthResponse> onSuccess) {
+        setBusy(true);
+        showMessage(I18n.get("message.loading"));
+
+        Task<AuthResponse> task = new Task<>() {
+            @Override
+            protected AuthResponse call() throws Exception {
+                return apiCall.call();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            setBusy(false);
+            showMessage("");
+            onSuccess.accept(task.getValue());
+        });
+
+        task.setOnFailed(e -> {
+            setBusy(false);
+            showMessage(describeError(task.getException()));
+        });
+
+        Thread thread = new Thread(task, "auth-api-call");
+        thread.setDaemon(true); // đóng cửa sổ là luồng này tự dừng, không giữ app lại
+        thread.start();
+    }
+
+    // Khóa nút trong lúc chờ server, chống bấm nhiều lần
+    private void setBusy(boolean busy) {
+        if (loginButton != null) {
+            loginButton.setDisable(busy);
+        }
+        if (registerButton != null) {
+            registerButton.setDisable(busy);
+        }
+    }
+
+    /**
+     * Đổi lỗi kỹ thuật thành câu dễ hiểu.
+     * - Chi tiết kỹ thuật (stack trace) chỉ ghi ra console.
+     * - Người dùng chỉ thấy câu thông báo lấy từ file i18n (có cả tiếng Việt và tiếng Anh).
+     */
+    private String describeError(Throwable error) {
+        LOG.log(System.Logger.Level.WARNING, "Gọi API xác thực thất bại", error);
+
+        if (error instanceof AuthApiClient.ApiException apiError) {
+            return switch (apiError.getType()) {
+                // 400: câu của server cụ thể hơn (vd. "Mật khẩu phải có ít nhất 6 ký tự")
+                case BAD_REQUEST -> apiError.getServerMessage() != null
+                        ? apiError.getServerMessage()
+                        : I18n.get("error.badRequest");
+                case UNAUTHORIZED -> I18n.get("error.login.invalid");
+                case FORBIDDEN -> I18n.get("error.forbidden");
+                case CONFLICT -> I18n.get("error.email.exists");
+                case SERVER -> I18n.get("error.server");
+                case NETWORK -> I18n.get("error.network");
+                case TIMEOUT -> I18n.get("error.timeout");
+                case UNKNOWN -> I18n.get("error.unknown");
+            };
+        }
+        return I18n.get("error.unknown");
+    }
     // ====================================================================
     // 6. QUÊN MẬT KHẨU
     // ====================================================================
@@ -267,7 +437,9 @@ public class AuthController {
             currentFxml = fxmlFile;
             currentTitleKey = titleKey;
         } catch (IOException e) {
-            showMessage(I18n.get("error.openView") + ": " + e.getMessage());
+            // [SỬA] Ghi chi tiết ra console, giao diện chỉ hiện câu chung (không lộ đường dẫn file)
+            LOG.log(System.Logger.Level.ERROR, "Không mở được màn hình " + fxmlFile, e);
+            showMessage(I18n.get("error.openView"));
         }
     }
 
@@ -380,8 +552,18 @@ public class AuthController {
         }
     }
 
+    // [SỬA] Thông báo lỗi: trả về kiểu mặc định (đỏ theo CSS)
     private void showMessage(String message) {
         if (messageLabel != null) {
+            messageLabel.setStyle("");
+            messageLabel.setText(message);
+        }
+    }
+
+    // [MỚI] Thông báo thành công: đổi sang màu xanh lá
+    private void showSuccess(String message) {
+        if (messageLabel != null) {
+            messageLabel.setStyle(SUCCESS_STYLE);
             messageLabel.setText(message);
         }
     }

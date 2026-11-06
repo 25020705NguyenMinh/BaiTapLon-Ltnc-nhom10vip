@@ -6,7 +6,7 @@ package vn.edu.auction.client.auth;
  */
 public final class RegisterData {
 
-    public static String role = "BIDDER";   // "BUYER" hoặc "SELLER"
+    public static String role = "BIDDER";
     public static String email = "";
 
     private RegisterData() {
