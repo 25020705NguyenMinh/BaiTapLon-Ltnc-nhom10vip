@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="vn.edu.auction.client.controller.ItemListController"
+      fx:controller="vn.edu.auction.client.browse.ItemListController"
       spacing="16"
       styleClass="screen">
 

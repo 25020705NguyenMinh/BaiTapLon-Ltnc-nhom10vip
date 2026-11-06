@@ -1,0 +1,70 @@
+/* Áp dụng font và nền chung cho toàn bộ giao diện */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f8f9fa;
+}
+
+/* Kiểu cho các dòng tiêu đề */
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 10px 0;
+}
+
+/* Kiểu nút bấm mặc định */
+.button {
+    -fx-background-color: #e9ecef;
+    -fx-text-fill: #495057;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #dee2e6;
+}
+
+/* Nút thao tác chính (Thêm, Sửa) */
+.primary-button {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+    -fx-border-color: #0b5ed7;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0b5ed7;
+}
+
+/* Nút nguy hiểm (Xóa, Đăng xuất) */
+.danger-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-border-color: #b02a37;
+}
+
+.danger-button:hover {
+    -fx-background-color: #c82333;
+}
+
+/* Dòng thông báo trạng thái */
+.message-label {
+    -fx-text-fill: #198754; /* Màu xanh lá */
+    -fx-font-style: italic;
+    -fx-font-size: 13px;
+    -fx-padding: 5px 0;
+}
+
+/* Căn chỉnh TableView */
+.table-view {
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+.table-view .column-header {
+    -fx-background-color: #e9ecef;
+    -fx-font-weight: bold;
+}
