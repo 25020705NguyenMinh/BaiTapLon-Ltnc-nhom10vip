@@ -5,6 +5,7 @@ import com.github.weisj.jsvg.parser.SVGLoader;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -13,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import vn.edu.auction.client.I18n;
 import vn.edu.auction.client.navigation.Navigator;
 
@@ -28,18 +31,12 @@ public class AuthController {
 
     // ====================================================================
     // 1. KHAI BÁO CÁC THÀNH PHẦN TRONG FXML (fx:id)
-    //    Một controller dùng chung cho nhiều trang, trang nào không có
-    //    fx:id đó thì biến sẽ là null -> nên kiểm tra null trước khi dùng.
     // ====================================================================
-
-    // MỚI: chọn ngôn ngữ
     @FXML private ComboBox<String> languageComboBox;
 
-    // email + lỗi dưới ô email (MỚI: emailError)
     @FXML private TextField emailField;
     @FXML private Label emailError;
 
-    // mật khẩu + lỗi dưới ô mật khẩu (MỚI: passwordContainer, passwordError)
     @FXML private PasswordField passwordField;
     @FXML private TextField passwordVisibleField;
     @FXML private HBox passwordContainer;
@@ -47,7 +44,6 @@ public class AuthController {
     @FXML private Button togglePasswordButton;
     private boolean passwordVisible = false;
 
-    // MỚI: trang đăng ký (Họ/Tên thay cho fullNameField, bỏ roleComboBox)
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private Label firstNameError;
@@ -63,8 +59,19 @@ public class AuthController {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$");
 
+    // ---- SỬA: cấu hình chuyển trang ----
+    // Thư mục chứa các file FXML của phần auth (tính từ /vn/edu/auction/client/)
+    private static final String VIEW_DIR = "fxml/auth/";
+    // Đường dẫn CSS (Navigator đang tìm sai chỗ nên controller tự gắn)
+    private static final String AUTH_CSS = "/vn/edu/auction/client/css/auth.css";
+
+    // Nhớ trang hiện tại để đổi ngôn ngữ thì load lại đúng trang.
+    // Mặc định là login vì Main mở trang login đầu tiên.
+    private static String currentFxml = "login-view.fxml";
+    private static String currentTitleKey = "title.login";
+
     // ====================================================================
-    // 2. KHỞI TẠO (chạy 1 lần mỗi khi một trang được mở)
+    // 2. KHỞI TẠO
     // ====================================================================
     @FXML
     public void initialize() {
@@ -74,14 +81,12 @@ public class AuthController {
 
         setupLanguageComboBox();
 
-        // Điền sẵn email (trang 2 nhớ email, trang 3 hiển thị email đã nhập)
         if (emailField != null) {
             emailField.setText(RegisterData.email);
             emailField.textProperty().addListener(
                     (obs, oldValue, newValue) -> clearFieldError(emailError, emailField));
         }
 
-        // Ô mật khẩu ẩn và ô mật khẩu hiện luôn có cùng nội dung
         if (passwordField != null && passwordVisibleField != null) {
             passwordVisibleField.textProperty().bindBidirectional(passwordField.textProperty());
         }
@@ -93,7 +98,6 @@ public class AuthController {
             togglePasswordButton.setGraphic(loadSvgIcon("eye.svg"));
         }
 
-        // Gõ lại thì xóa lỗi đỏ
         if (firstNameField != null) {
             firstNameField.textProperty().addListener(
                     (obs, oldValue, newValue) -> clearFieldError(firstNameError, firstNameField));
@@ -102,11 +106,10 @@ public class AuthController {
             lastNameField.textProperty().addListener(
                     (obs, oldValue, newValue) -> clearFieldError(lastNameError, lastNameField));
         }
-
     }
 
     // ====================================================================
-    // 3. CHỌN NGÔN NGỮ (MỚI)
+    // 3. CHỌN NGÔN NGỮ
     // ====================================================================
     private void setupLanguageComboBox() {
         if (languageComboBox == null) {
@@ -114,7 +117,6 @@ public class AuthController {
         }
         languageComboBox.getItems().setAll(LANG_VI, LANG_EN);
         languageComboBox.setValue(I18n.isVietnamese() ? LANG_VI : LANG_EN);
-        // setOnAction đặt SAU setValue để lần đặt giá trị đầu không bị kích hoạt
         languageComboBox.setOnAction(e -> handleLanguageChange());
     }
 
@@ -124,29 +126,23 @@ public class AuthController {
                 : I18n.VIETNAMESE;
 
         if (selected.getLanguage().equals(I18n.getLocale().getLanguage())) {
-            return; // không đổi gì thì thôi
+            return;
         }
 
         I18n.setLocale(selected);
 
-        // runLater: đợi ComboBox đóng xong rồi mới load lại trang
-        Platform.runLater(() -> {
-            try {
-                Navigator.reload();
-            } catch (IOException e) {
-                showMessage(I18n.get("error.openView") + ": " + e.getMessage());
-            }
-        });
+        // SỬA: không dùng Navigator.reload() nữa (trang login do Main mở nên
+        // Navigator chưa biết trang hiện tại). Tự load lại trang đang đứng.
+        Platform.runLater(() -> switchView(currentFxml, currentTitleKey));
     }
 
     // ====================================================================
-    // 4. ĐĂNG NHẬP (SỬA: báo lỗi ngay dưới từng ô)
+    // 4. ĐĂNG NHẬP
     // ====================================================================
     @FXML
     private void handleLogin() {
         showMessage("");
 
-        // Kiểm tra cả 2 ô rồi mới return để hiện lỗi cùng lúc
         boolean emailOk = validateEmail();
         boolean passwordOk = validatePassword(false);
 
@@ -161,7 +157,6 @@ public class AuthController {
         showMessage(I18n.get("message.api.pending"));
     }
 
-    // Các nút đăng nhập mạng xã hội: TỐI NAY BẠN THÊM CODE VÀO 3 HÀM NÀY
     @FXML
     private void handleGoogleLogin() {
         // TODO: code đăng nhập Google
@@ -181,10 +176,8 @@ public class AuthController {
     }
 
     // ====================================================================
-    // 5. ĐĂNG KÝ - 2 TRANG (MỚI). Vai trò luôn mặc định là BUYER.
+    // 5. ĐĂNG KÝ
     // ====================================================================
-
-    // ---- Trang 1: chọn cách đăng ký (Google / Facebook / LinkedIn / email) ----
     @FXML
     private void handleEmailContinue() {
         showMessage("");
@@ -195,7 +188,6 @@ public class AuthController {
         openRegisterView();
     }
 
-    // ---- Trang 2: thiết lập tài khoản ----
     @FXML
     private void handleRegister() {
         showMessage("");
@@ -208,8 +200,6 @@ public class AuthController {
             return;
         }
 
-        // Ô trái + ô phải ghép lại thành họ tên đầy đủ
-        // (tiếng Việt: "Nguyễn Văn" + "An", tiếng Anh: "John" + "Smith")
         String fullName = firstNameField.getText().trim() + " " + lastNameField.getText().trim();
         String email = RegisterData.email;
         String role = RegisterData.role;
@@ -220,7 +210,7 @@ public class AuthController {
     }
 
     // ====================================================================
-    // 6. QUÊN MẬT KHẨU (giữ nguyên, chỉ đổi sang lấy chữ từ I18n)
+    // 6. QUÊN MẬT KHẨU
     // ====================================================================
     @FXML
     private void handleConfirmReset() {
@@ -234,11 +224,12 @@ public class AuthController {
     }
 
     // ====================================================================
-    // 7. CHUYỂN TRANG
+    // 7. CHUYỂN TRANG (ĐÃ SỬA)
+    //    Chỉ truyền tên file, VIEW_DIR sẽ tự thêm "fxml/auth/" phía trước.
     // ====================================================================
     @FXML
     private void openLoginView() {
-        RegisterData.reset(); // thoát khỏi luồng đăng ký thì xóa dữ liệu tạm
+        RegisterData.reset();
         switchView("login-view.fxml", "title.login");
     }
 
@@ -257,17 +248,58 @@ public class AuthController {
         switchView("reset-password-view.fxml", "title.reset");
     }
 
-    // SỬA: giờ chỉ gọi Navigator
     private void switchView(String fxmlFile, String titleKey) {
         try {
-            Navigator.show(fxmlFile, titleKey);
+            // 1) Lấy cửa sổ hiện tại và đưa cho Navigator (Main chưa làm việc này)
+            Stage stage = findStage();
+            if (stage == null) {
+                throw new IOException("Không tìm thấy cửa sổ hiện tại");
+            }
+            Navigator.setStage(stage);
+
+            // 2) Mở trang với đường dẫn đầy đủ: fxml/auth/xxx.fxml
+            Navigator.show(VIEW_DIR + fxmlFile, titleKey);
+
+            // 3) Navigator tìm CSS sai chỗ -> tự gắn CSS đúng vào scene mới
+            applyAuthCss(stage.getScene());
+
+            // 4) Nhớ trang hiện tại cho lần đổi ngôn ngữ
+            currentFxml = fxmlFile;
+            currentTitleKey = titleKey;
         } catch (IOException e) {
             showMessage(I18n.get("error.openView") + ": " + e.getMessage());
         }
     }
 
+    /** Lấy Stage từ bất kỳ ô nào đang có trên trang hiện tại. */
+    private Stage findStage() {
+        Node[] nodes = {
+                emailField, passwordField, firstNameField, lastNameField,
+                languageComboBox, messageLabel, loginButton, registerButton
+        };
+        for (Node node : nodes) {
+            if (node != null && node.getScene() != null) {
+                Window window = node.getScene().getWindow();
+                if (window instanceof Stage stage) {
+                    return stage;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void applyAuthCss(Scene scene) {
+        if (scene == null) {
+            return;
+        }
+        var css = getClass().getResource(AUTH_CSS);
+        if (css != null && !scene.getStylesheets().contains(css.toExternalForm())) {
+            scene.getStylesheets().add(css.toExternalForm());
+        }
+    }
+
     // ====================================================================
-    // 8. ẨN / HIỆN MẬT KHẨU (SỬA: gọn hơn vì 2 ô đã bind với nhau)
+    // 8. ẨN / HIỆN MẬT KHẨU
     // ====================================================================
     @FXML
     private void togglePasswordVisibility() {
@@ -287,7 +319,7 @@ public class AuthController {
     }
 
     // ====================================================================
-    // 9. HÀM HỖ TRỢ KIỂM TRA + HIỆN LỖI DƯỚI Ô NHẬP (MỚI)
+    // 9. KIỂM TRA + HIỆN LỖI DƯỚI Ô NHẬP
     // ====================================================================
     private boolean validateEmail() {
         String email = emailField.getText().trim();
@@ -303,7 +335,7 @@ public class AuthController {
         return true;
     }
 
-    /** checkLength = true khi đăng ký (yêu cầu tối thiểu 6 ký tự), false khi đăng nhập. */
+    /** checkLength = true khi đăng ký (tối thiểu 6 ký tự), false khi đăng nhập. */
     private boolean validatePassword(boolean checkLength) {
         String password = passwordField.getText();
 
@@ -326,7 +358,6 @@ public class AuthController {
         return true;
     }
 
-    /** Hiện chữ đỏ dưới ô + viền đỏ quanh ô. */
     private void showFieldError(Label errorLabel, Node field, String message) {
         if (errorLabel != null) {
             errorLabel.setText(message);
@@ -349,7 +380,6 @@ public class AuthController {
         }
     }
 
-    // Thông báo chung (ví dụ lỗi từ server) - nằm phía trên nút chính
     private void showMessage(String message) {
         if (messageLabel != null) {
             messageLabel.setText(message);
@@ -357,7 +387,7 @@ public class AuthController {
     }
 
     // ====================================================================
-    // 10. TẢI ICON SVG (giữ nguyên code cũ của bạn)
+    // 10. TẢI ICON SVG
     // ====================================================================
     private ImageView loadSvgIcon(String fileName) {
         try {

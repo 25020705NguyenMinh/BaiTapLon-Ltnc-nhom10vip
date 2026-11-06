@@ -15,20 +15,75 @@
 
     <artifactId>server</artifactId>
 
-    <dependencies>
-    <!-- Xây dựng ứng dụng server và REST API -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>3.5.6</version>
-    </dependency>
+    <properties>
+        <spring-boot.version>3.5.6</spring-boot.version>
+        <jjwt.version>0.12.6</jjwt.version>
+    </properties>
 
-    <!-- Cho phép server sử dụng các lớp chung trong module shared -->
-    <dependency>
-        <groupId>vn.edu.auction</groupId>
-        <artifactId>shared</artifactId>
-        <version>${project.version}</version>
-    </dependency>
+    <!-- Quản lý version cho toàn bộ thư viện Spring Boot -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Xây dựng ứng dụng server và REST API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- JPA: thao tác database bằng Entity/Repository -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Spring Security: bảo vệ API + BCrypt -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Database H2 (dev). Sau này đổi MySQL/PostgreSQL chỉ cần đổi driver + url -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Cho phép server sử dụng các lớp chung trong module shared -->
+        <dependency>
+            <groupId>vn.edu.auction</groupId>
+            <artifactId>shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
