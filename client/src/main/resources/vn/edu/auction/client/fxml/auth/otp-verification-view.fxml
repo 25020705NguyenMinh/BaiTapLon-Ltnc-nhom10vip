@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane prefWidth="760" prefHeight="550"
+            styleClass="auth-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="vn.edu.auction.client.auth.AuthController">
+
+    <children>
+        <HBox alignment="CENTER_RIGHT"
+              AnchorPane.topAnchor="18"
+              AnchorPane.rightAnchor="22">
+            <ComboBox fx:id="languageComboBox"
+                      focusTraversable="false"
+                      styleClass="language-combo"/>
+        </HBox>
+
+        <VBox alignment="CENTER_LEFT"
+              spacing="0"
+              prefWidth="520"
+              AnchorPane.leftAnchor="120"
+              AnchorPane.topAnchor="65">
+
+            <Label text="%otp.title"
+                   styleClass="otp-title"/>
+
+            <HBox spacing="5"
+                  alignment="CENTER_LEFT"
+                  style="-fx-padding: 15 0 30 0;">
+                <Label text="%otp.sentTo"
+                       styleClass="otp-description"/>
+                <Label fx:id="emailLabel"
+                       styleClass="otp-email"/>
+            </HBox>
+
+            <HBox spacing="12"
+                  alignment="CENTER_LEFT">
+                <TextField fx:id="otp1" styleClass="otp-digit"/>
+                <TextField fx:id="otp2" styleClass="otp-digit"/>
+                <TextField fx:id="otp3" styleClass="otp-digit"/>
+                <TextField fx:id="otp4" styleClass="otp-digit"/>
+                <TextField fx:id="otp5" styleClass="otp-digit"/>
+                <TextField fx:id="otp6" styleClass="otp-digit"/>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT"
+                  spacing="5"
+                  style="-fx-padding: 15 0 25 0;">
+                <Label text="%otp.noCode"
+                       styleClass="otp-description"/>
+                <Hyperlink fx:id="resendLink"
+                           text="%otp.resend"
+                           onAction="#onResend"
+                           styleClass="resend-link"/>
+                <Label fx:id="countdownLabel"
+                       styleClass="otp-description"/>
+            </HBox>
+            <HBox alignment="CENTER_LEFT"
+                  spacing="10"
+                  style="-fx-padding: 15 0 25 0;"/>
+            <Button fx:id="continueButton"
+                    text="%common.continue"
+                    onAction="#onContinue"
+                    styleClass="primary-button"
+                    prefWidth="520"
+                    prefHeight="48"/>
+
+            <Label fx:id="messageLabel"
+                   styleClass="message-label"
+                   wrapText="true"
+                   maxWidth="520"
+                   style="-fx-padding: 8 0 0 0;"/>
+
+            <Hyperlink text="%common.back"
+                       onAction="#openLoginView"
+                       styleClass="otp-back-link"
+                       prefWidth="520"
+                       prefHeight="46"/>
+        </VBox>
+    </children>
+</AnchorPane>

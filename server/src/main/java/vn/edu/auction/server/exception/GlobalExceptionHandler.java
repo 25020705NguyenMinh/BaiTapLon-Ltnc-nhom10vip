@@ -62,7 +62,23 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, "Dữ liệu gửi lên không hợp lệ", request);
     }
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidOtp(
+            InvalidOtpException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
 
+    @ExceptionHandler(OtpCooldownException.class)
+    public ResponseEntity<ApiErrorResponse> handleOtpCooldown(
+            OtpCooldownException ex, HttpServletRequest request) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailSend(
+            EmailSendException ex, HttpServletRequest request) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
     // Lỗi còn lại: chỉ ghi log phía server, trả thông báo chung cho client
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleOthers(Exception ex, HttpServletRequest request) {

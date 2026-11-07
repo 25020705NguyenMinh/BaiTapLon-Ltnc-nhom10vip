@@ -34,7 +34,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Tắt tài khoản mặc định "user" + mật khẩu in ra log của Spring Security
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -47,12 +46,30 @@ public class SecurityConfig {
                                                    JwtService jwtService,
                                                    ObjectMapper objectMapper) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)          // API dùng JWT, không dùng cookie
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/health").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/verify-email",
+                                "/api/auth/resend-otp",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
+                                "/api/auth/oauth2/**",
+                                "/api/health",
+                                "/login/**",
+                                "/login/oauth2/**",
+                                "/oauth2/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        // Chỉ định endpoint kích hoạt login thay vì /login mặc định
+                        .loginPage("/oauth2/authorization/google")
+                        .defaultSuccessUrl("/api/auth/oauth2/success", true)
+                )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, e) -> writeError(
                                 objectMapper, request, response, HttpStatus.UNAUTHORIZED,
@@ -66,7 +83,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Lỗi phát sinh ở tầng Security (trước khi tới controller) cũng trả theo ApiErrorResponse
     private static void writeError(ObjectMapper objectMapper,
                                    HttpServletRequest request,
                                    HttpServletResponse response,

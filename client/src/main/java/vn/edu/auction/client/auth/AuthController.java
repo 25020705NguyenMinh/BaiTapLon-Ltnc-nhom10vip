@@ -39,8 +39,19 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import com.sun.net.httpserver.HttpServer;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.input.KeyCode;
+import java.util.function.UnaryOperator;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 public class AuthController {
 
@@ -67,6 +78,20 @@ public class AuthController {
     @FXML private Label messageLabel;
     @FXML private Button loginButton;
     @FXML private Button registerButton;
+    // ---- Màn hình OTP (khớp fx:id trong otp-verification-view.fxml) ----
+    @FXML private TextField otp1, otp2, otp3, otp4, otp5, otp6;
+    @FXML private Label emailLabel;
+    @FXML private Hyperlink resendLink;
+    @FXML private Label countdownLabel;
+    @FXML private Button continueButton;
+
+    @FXML private PasswordField confirmPasswordField;
+    @FXML private Label confirmPasswordError;
+    @FXML private Button submitButton;
+    private TextField[] otpBoxes;
+    private Timeline resendTimer;
+    private boolean otpFilling = false;          // true khi code đang tự điền ô (dán mã)
+    private static final int RESEND_SECONDS = 60; // phải khớp app.otp.resend-cooldown-seconds của server
 
     private static final String LANG_VI = "Tiếng Việt";
     private static final String LANG_EN = "English";
@@ -132,6 +157,10 @@ public class AuthController {
             lastNameField.textProperty().addListener(
                     (obs, oldValue, newValue) -> clearFieldError(lastNameError, lastNameField));
         }
+        // Trang OTP: có ô otp1 thì cấu hình 6 ô nhập và đồng hồ gửi lại
+        if (otp1 != null) {
+            setupOtpView();
+        }
     }
 
     // ====================================================================
@@ -182,13 +211,7 @@ public class AuthController {
                 emailField.getText().trim(),
                 passwordField.getText());
 
-        runAsync(() -> {
-            try {
-                return AUTH_API.login(request);
-            } catch (AuthApiClient.ApiException e) {
-                throw new RuntimeException(e);
-            }
-        }, this::onLoginSuccess);
+        runAsync(() -> AUTH_API.login(request), this::onLoginSuccess);
     }
     private void onLoginSuccess(AuthResponse response) {
         Stage stage = findStage();
@@ -201,7 +224,9 @@ public class AuthController {
 
         // 2) Xóa mật khẩu khỏi ô nhập. VÌ SAO: không để mật khẩu nằm lại trong bộ nhớ giao diện
         //    lâu hơn cần thiết. Mật khẩu cũng không được lưu ở SessionData hay RegisterData.
-        passwordField.clear();
+        if (passwordField != null) {
+            passwordField.clear();
+        }
         RegisterData.reset();
 
         // 3) Báo cho các bộ điều hướng biết cửa sổ chính, rồi chuyển tới trang chủ.
@@ -213,21 +238,128 @@ public class AuthController {
     }
     @FXML
     private void handleGoogleLogin() {
-        // TODO: code đăng nhập Google
-        showMessage(I18n.get("message.social.pending"));
-    }
-    /** Chạy trên luồng giao diện sau khi server báo đăng nhập thành công. */
+        showMessage("");
 
-    @FXML
-    private void handleFacebookLogin() {
-        // TODO: code đăng nhập Facebook
-        showMessage(I18n.get("message.social.pending"));
+        // 1. Mở trạm thu sóng nội bộ tại port 8081 để hứng Token và Name từ Server
+        startLocalCallbackServer();
+
+        // 2. Mở trình duyệt gọi lên Spring Boot Server
+        String googleAuthUrl = "http://localhost:8080/oauth2/authorization/google";
+        openOAuthBrowser(googleAuthUrl);
     }
 
-    @FXML
-    private void handleLinkedinLogin() {
-        // TODO: code đăng nhập LinkedIn
-        showMessage(I18n.get("message.social.pending"));
+    /**
+     * Mở một HTTP Server tạm thời trên JavaFX (cổng 8081) để nhận Token và Name trả về.
+     */
+    private void startLocalCallbackServer() {
+        try {
+            com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress(8081), 0);
+
+            server.createContext("/callback", exchange -> {
+                try {
+                    String query = exchange.getRequestURI().getQuery();
+                    String token = null;
+                    String name = "Người dùng"; // Tên mặc định nếu không lấy được
+
+                    // Tách lấy token và name từ URL
+                    if (query != null) {
+                        for (String param : query.split("&")) {
+                            if (param.startsWith("token=")) {
+                                token = param.substring(6);
+                            } else if (param.startsWith("name=")) {
+                                // Giải mã tiếng Việt
+                                name = java.net.URLDecoder.decode(param.substring(5), java.nio.charset.StandardCharsets.UTF_8);
+                            }
+                        }
+                    }
+
+                    // Trả về HTML báo cho người dùng tắt trình duyệt
+                    String htmlResponse = "<html><head><title>Thành công</title></head>"
+                            + "<body style='text-align:center; padding-top:50px; font-family:Arial;'>"
+                            + "<h2 style='color:#4CAF50;'>Đăng nhập thành công!</h2>"
+                            + "<p>Bạn có thể đóng cửa sổ này và quay lại ứng dụng Tech Auction.</p>"
+                            + "</body></html>";
+
+                    byte[] responseBytes = htmlResponse.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, responseBytes.length);
+                    exchange.getResponseBody().write(responseBytes);
+
+                    // Truyền cả token và name xuống cho giao diện
+                    if (token != null && !token.isEmpty()) {
+                        String finalToken = token;
+                        String finalName = name;
+                        javafx.application.Platform.runLater(() -> {
+                            AuthResponse authResponse = new AuthResponse();
+                            authResponse.setToken(finalToken);
+
+                            // Gắn tên vào AuthResponse để hiển thị "Xin chào, [Tên]"
+                            authResponse.setFullName(finalName);
+
+                            onLoginSuccess(authResponse);
+                        });
+                    }
+                } finally {
+                    exchange.close();
+                    server.stop(0); // Tắt server nội bộ ngay khi nhận xong
+                }
+            });
+
+            server.start();
+            System.out.println("Local Callback Server started on port 8081");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            javafx.application.Platform.runLater(() -> showMessage("Lỗi khởi tạo trạm nhận đăng nhập."));
+        }
+    }
+//
+//    @FXML
+//    private void handleFacebookLogin() {
+//        // Link đăng nhập Facebook OAuth2 (Thay app_id bằng App ID từ Meta Developer)
+//        String facebookAuthUrl = "https://www.facebook.com/v18.0/dialog/oauth"
+//                + "?client_id=YOUR_FACEBOOK_APP_ID"
+//                + "&redirect_uri=http://localhost:8080/login/oauth2/code/facebook"
+//                + "&scope=email,public_profile";
+//
+//        openOAuthBrowser(facebookAuthUrl);
+//    }
+//
+//    @FXML
+//    private void handleLinkedinLogin() {
+//        // Link đăng nhập LinkedIn OAuth2
+//        String linkedinAuthUrl = "https://www.linkedin.com/oauth/v2/authorization"
+//                + "?response_type=code"
+//                + "&client_id=YOUR_LINKEDIN_CLIENT_ID"
+//                + "&redirect_uri=http://localhost:8080/login/oauth2/code/linkedin"
+//                + "&scope=openid%20profile%20email";
+//
+//        openOAuthBrowser(linkedinAuthUrl);
+//    }
+
+    /**
+     * Hàm mở URL trang đăng nhập OAuth2 trên trình duyệt hệ thống (Chrome/Edge)
+     */
+    private void openOAuthBrowser(String url) {
+        try {
+            if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } else {
+                // Dự phòng nếu hệ thống không hỗ trợ AWT Desktop
+                Runtime runtime = Runtime.getRuntime();
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    runtime.exec("rundll32 url.dll,FileProtocolHandler " + url);
+                } else if (os.contains("mac")) {
+                    runtime.exec("open " + url);
+                } else if (os.contains("nix") || os.contains("nux")) {
+                    runtime.exec("xdg-open " + url);
+                }
+            }
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.ERROR, "Không thể mở trang đăng nhập mạng xã hội", e);
+            showMessage("Không thể mở trình duyệt đăng nhập.");
+        }
     }
 
     // ====================================================================
@@ -265,13 +397,7 @@ public class AuthController {
                 passwordField.getText(),
                 parseRole(RegisterData.role));
 
-        runAsync(() -> {
-            try {
-                return AUTH_API.register(request);
-            } catch (AuthApiClient.ApiException e) {
-                throw new RuntimeException(e);
-            }
-        }, response -> onRegisterSuccess(email));
+        runAsync(() -> AUTH_API.register(request), response -> onRegisterSuccess(email));
     }
 
     /**
@@ -279,21 +405,16 @@ public class AuthController {
      * VÌ SAO không tự đăng nhập luôn dù server có trả token: đề yêu cầu "hiển thị thành công";
      * để người dùng tự đăng nhập là luồng quen thuộc, và token chỉ được lưu ở một chỗ (handleLogin).
      */
+    /**
+     * Đăng ký xong: server đã gửi mã OTP tới email, nên chuyển sang trang nhập mã.
+     * Trang OTP đọc email từ RegisterData.email (đã được giữ lại).
+     */
     private void onRegisterSuccess(String email) {
-        passwordField.clear();
-        showSuccess(I18n.get("message.register.success"));
-
-        // Khóa nút trong lúc chờ chuyển trang để người dùng không bấm đăng ký lần 2 (sẽ bị 409).
-        registerButton.setDisable(true);
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
-        pause.setOnFinished(e -> {
-            RegisterData.reset();
-            // Giữ lại email để trang đăng nhập điền sẵn (initialize() đọc RegisterData.email)
-            RegisterData.email = email;
-            switchView("login-view.fxml", "title.login");
-        });
-        pause.play();
+        if (passwordField != null) {
+            passwordField.clear();
+        }
+        RegisterData.email = email;
+        switchView("otp-verification-view.fxml", "title.otpMethod");
     }
 
     // RegisterData.role là chuỗi. Chuyển sang enum của shared.
@@ -310,20 +431,13 @@ public class AuthController {
     // ====================================================================
     // 6. GỌI API Ở LUỒNG NỀN  [MỚI]
     // ====================================================================
-    /**
-     * Chạy lời gọi API ở luồng riêng rồi trả kết quả về luồng giao diện.
-     *
-     * VÌ SAO KHÔNG GỌI TRỰC TIẾP: gọi mạng chặn luồng JavaFX tới 10 giây (khi server chậm hoặc
-     * tắt) thì cửa sổ đứng hình. Task chạy nền và gọi lại trên luồng giao diện, nên an toàn
-     * khi cập nhật Label/Scene.
-     */
-    private void runAsync(Callable<AuthResponse> apiCall, Consumer<AuthResponse> onSuccess) {
+    private <T> void runAsync(Callable<T> apiCall, Consumer<T> onSuccess) {
         setBusy(true);
         showMessage(I18n.get("message.loading"));
 
-        Task<AuthResponse> task = new Task<>() {
+        Task<T> task = new Task<>() {
             @Override
-            protected AuthResponse call() throws Exception {
+            protected T call() throws Exception {
                 return apiCall.call();
             }
         };
@@ -340,11 +454,10 @@ public class AuthController {
         });
 
         Thread thread = new Thread(task, "auth-api-call");
-        thread.setDaemon(true); // đóng cửa sổ là luồng này tự dừng, không giữ app lại
+        thread.setDaemon(true);
         thread.start();
     }
 
-    // Khóa nút trong lúc chờ server, chống bấm nhiều lần
     private void setBusy(boolean busy) {
         if (loginButton != null) {
             loginButton.setDisable(busy);
@@ -352,24 +465,22 @@ public class AuthController {
         if (registerButton != null) {
             registerButton.setDisable(busy);
         }
+        if (continueButton != null) {
+            continueButton.setDisable(busy);
+        }
     }
 
-    /**
-     * Đổi lỗi kỹ thuật thành câu dễ hiểu.
-     * - Chi tiết kỹ thuật (stack trace) chỉ ghi ra console.
-     * - Người dùng chỉ thấy câu thông báo lấy từ file i18n (có cả tiếng Việt và tiếng Anh).
-     */
     private String describeError(Throwable error) {
         LOG.log(System.Logger.Level.WARNING, "Gọi API xác thực thất bại", error);
 
         if (error instanceof AuthApiClient.ApiException apiError) {
+            String serverMessage = apiError.getServerMessage();
             return switch (apiError.getType()) {
-                // 400: câu của server cụ thể hơn (vd. "Mật khẩu phải có ít nhất 6 ký tự")
-                case BAD_REQUEST -> apiError.getServerMessage() != null
-                        ? apiError.getServerMessage()
-                        : I18n.get("error.badRequest");
+                // Các lỗi mà câu của server cụ thể hơn: sai OTP (còn mấy lần thử), chờ bao lâu, chưa xác minh...
+                case BAD_REQUEST -> serverMessage != null ? serverMessage : I18n.get("error.badRequest");
+                case FORBIDDEN -> serverMessage != null ? serverMessage : I18n.get("error.forbidden");
+                case RATE_LIMITED -> serverMessage != null ? serverMessage : I18n.get("error.unknown");
                 case UNAUTHORIZED -> I18n.get("error.login.invalid");
-                case FORBIDDEN -> I18n.get("error.forbidden");
                 case CONFLICT -> I18n.get("error.email.exists");
                 case SERVER -> I18n.get("error.server");
                 case NETWORK -> I18n.get("error.network");
@@ -384,19 +495,68 @@ public class AuthController {
     // ====================================================================
     @FXML
     private void handleConfirmReset() {
-        String email = emailField.getText().trim();
+        showMessage("");
+        if (!validateEmail()) return;
 
-        if (email.isEmpty()) {
-            showMessage(I18n.get("error.email.empty"));
+        String email = emailField.getText().trim();
+        RegisterData.email = email;
+        RegisterData.isResetPasswordFlow = true; // Bật cờ luồng quên mật khẩu
+
+        // Gọi API Server gửi OTP tới email
+        runAsync(() -> AUTH_API.forgotPassword(email), response -> {
+            showSuccess(response.getMessage());
+            openOtpVerification(); // Chuyển sang Màn hình OTP
+        });
+    }
+    @FXML
+    private void handleResetPasswordSubmit() {
+        showMessage("");
+        boolean passOk = validatePassword(true);
+        String newPassword = passwordField.getText();
+        String confirmPassword = confirmPasswordField != null ? confirmPasswordField.getText() : "";
+
+        if (!passOk) return;
+        if (!newPassword.equals(confirmPassword)) {
+            showFieldError(confirmPasswordError, confirmPasswordField, "Mật khẩu xác nhận không khớp");
             return;
         }
-        showMessage(I18n.get("message.api.pending"));
-    }
 
+        String email = RegisterData.email;
+        String otp = RegisterData.verifiedOtp;
+
+        // Gọi API gửi Email + OTP + Pass mới lên Server để cập nhật DB
+        runAsync(() -> AUTH_API.resetPassword(email, otp, newPassword), response -> {
+            RegisterData.reset();
+            openLoginView(); // Hoàn tất -> Về màn hình Login
+            showSuccess(response.getMessage());
+        });
+    }
+    /** Nút Tiếp tục trên màn hình OTP (khớp onAction="#onContinue" trong FXML). */
+    @FXML
+    private void onContinue() {
+        showMessage("");
+        String code = getOtpCode();
+        if (code.length() != 6) {
+            showMessage(I18n.get("error.otp.incomplete"));
+            return;
+        }
+
+        String email = RegisterData.email;
+
+        if (RegisterData.isResetPasswordFlow) {
+            // Luồng Quên mật khẩu: Lưu OTP lại và chuyển sang Màn hình Reset 2
+            RegisterData.verifiedOtp = code;
+            switchView("reset-password2-view.fxml", "title.reset");
+        } else {
+            // Luồng Đăng ký: Xác minh OTP và đăng nhập vào thẳng Trang chủ
+            runAsync(() -> AUTH_API.verifyEmail(email, code), this::onLoginSuccess);
+        }
+    }
     // ====================================================================
     // 7. CHUYỂN TRANG (ĐÃ SỬA)
     //    Chỉ truyền tên file, VIEW_DIR sẽ tự thêm "fxml/auth/" phía trước.
     // ====================================================================
+
     @FXML
     private void openLoginView() {
         RegisterData.reset();
@@ -412,6 +572,10 @@ public class AuthController {
     private void openRegisterView() {
         switchView("register-view.fxml", "title.register");
     }
+    @FXML
+    private void openOtpVerification() {
+        switchView("otp-verification-view.fxml", "title.otpMethod");
+    }
 
     @FXML
     private void openResetPasswordView() {
@@ -420,24 +584,25 @@ public class AuthController {
 
     private void switchView(String fxmlFile, String titleKey) {
         try {
-            // 1) Lấy cửa sổ hiện tại và đưa cho Navigator (Main chưa làm việc này)
             Stage stage = findStage();
             if (stage == null) {
                 throw new IOException("Không tìm thấy cửa sổ hiện tại");
             }
             Navigator.setStage(stage);
 
-            // 2) Mở trang với đường dẫn đầy đủ: fxml/auth/xxx.fxml
+            // Mở trang FXML mới
             Navigator.show(VIEW_DIR + fxmlFile, titleKey);
-
-            // 3) Navigator tìm CSS sai chỗ -> tự gắn CSS đúng vào scene mới
             applyAuthCss(stage.getScene());
-
-            // 4) Nhớ trang hiện tại cho lần đổi ngôn ngữ
             currentFxml = fxmlFile;
             currentTitleKey = titleKey;
+
+            // ===== THÊM ĐOẠN NÀY ĐỂ MỞ RỘNG CỬA SỔ THEO NỘI DUNG MỚI =====
+            Platform.runLater(() -> {
+                stage.sizeToScene(); // Tự động dãn cửa sổ theo FXML mới
+                stage.centerOnScreen(); // Căn giữa màn hình
+            });
+
         } catch (IOException e) {
-            // [SỬA] Ghi chi tiết ra console, giao diện chỉ hiện câu chung (không lộ đường dẫn file)
             LOG.log(System.Logger.Level.ERROR, "Không mở được màn hình " + fxmlFile, e);
             showMessage(I18n.get("error.openView"));
         }
@@ -567,7 +732,164 @@ public class AuthController {
             messageLabel.setText(message);
         }
     }
+    // ====================================================================
+    // 12. MÀN HÌNH NHẬP OTP  [MỚI]
+    // ====================================================================
+    private void setupOtpView() {
+        otpBoxes = new TextField[]{otp1, otp2, otp3, otp4, otp5, otp6};
+        for (int i = 0; i < otpBoxes.length; i++) {
+            setupOtpBox(i);
+        }
 
+        if (emailLabel != null) {
+            emailLabel.setText(maskEmail(RegisterData.email));
+        }
+        startResendCountdown(RESEND_SECONDS); // server vừa gửi mã nên bắt đầu đếm ngược luôn
+        Platform.runLater(() -> otpBoxes[0].requestFocus());
+    }
+
+    /**
+     * Cấu hình 1 ô OTP:
+     *  - chỉ nhận 1 chữ số, gõ số mới thì thay số cũ;
+     *  - gõ xong tự nhảy sang ô kế tiếp;
+     *  - Backspace ở ô trống thì lùi về ô trước;
+     *  - dán nguyên "123456" thì tự rải vào 6 ô.
+     * VÌ SAO làm vậy: người dùng quen với cách nhập mã này, và dán mã từ email là thao tác rất hay gặp.
+     */
+    private void setupOtpBox(int index) {
+        TextField box = otpBoxes[index];
+
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String inserted = change.getText();
+
+            if (inserted.isEmpty()) {
+                return change; // xóa ký tự
+            }
+            if (inserted.length() > 1) { // dán nhiều ký tự
+                String digits = inserted.replaceAll("\\D", "");
+                if (!digits.isEmpty()) {
+                    Platform.runLater(() -> fillOtpBoxes(index, digits));
+                }
+                return null;
+            }
+            char c = inserted.charAt(0);
+            if (c < '0' || c > '9') {
+                return null; // không phải chữ số thì bỏ
+            }
+
+            // Thay toàn bộ nội dung ô bằng chữ số vừa gõ (ô luôn tối đa 1 ký tự)
+            change.setRange(0, change.getControlText().length());
+            change.setCaretPosition(1);
+            change.setAnchor(1);
+
+            if (!otpFilling && index < otpBoxes.length - 1) {
+                Platform.runLater(() -> otpBoxes[index + 1].requestFocus());
+            }
+            return change;
+        };
+        box.setTextFormatter(new TextFormatter<>(filter));
+
+        box.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.BACK_SPACE && box.getText().isEmpty() && index > 0) {
+                otpBoxes[index - 1].clear();
+                otpBoxes[index - 1].requestFocus();
+            }
+        });
+    }
+
+    // Rải chuỗi số vào các ô bắt đầu từ ô start (dùng khi dán mã)
+    private void fillOtpBoxes(int start, String digits) {
+        otpFilling = true; // báo cho bộ lọc đừng tự nhảy ô trong lúc điền
+        try {
+            for (int k = 0; k < digits.length() && start + k < otpBoxes.length; k++) {
+                otpBoxes[start + k].setText(String.valueOf(digits.charAt(k)));
+            }
+        } finally {
+            otpFilling = false;
+        }
+        otpBoxes[Math.min(start + digits.length(), otpBoxes.length - 1)].requestFocus();
+    }
+
+    private String getOtpCode() {
+        StringBuilder code = new StringBuilder();
+        for (TextField box : otpBoxes) {
+            code.append(box.getText());
+        }
+        return code.toString();
+    }
+
+    private void clearOtpBoxes() {
+        for (TextField box : otpBoxes) {
+            box.clear();
+        }
+        otpBoxes[0].requestFocus();
+    }
+
+
+
+    /** Link "Gửi mã mới". */
+    @FXML
+    private void onResend() {
+        showMessage("");
+        String email = RegisterData.email;
+
+        if (RegisterData.isResetPasswordFlow) {
+            // Luồng Quên mật khẩu: Gọi lại API forgotPassword để phát lại OTP
+            runAsync(() -> AUTH_API.forgotPassword(email), response -> {
+                showSuccess(I18n.get("otp.resent"));
+                clearOtpBoxes();
+                startResendCountdown(RESEND_SECONDS);
+            });
+        } else {
+            // Luồng Đăng ký: Gọi API resendOtp như bình thường
+            runAsync(() -> AUTH_API.resendOtp(email), response -> {
+                showSuccess(I18n.get("otp.resent"));
+                clearOtpBoxes();
+                startResendCountdown(RESEND_SECONDS);
+            });
+        }
+    }
+
+    /**
+     * Khóa link "Gửi mã mới" và đếm ngược mỗi giây.
+     * VÌ SAO: server chỉ cho xin mã mới sau 60 giây; khóa sẵn ở giao diện để người dùng
+     * không bấm rồi mới bị báo lỗi.
+     */
+    private void startResendCountdown(int seconds) {
+        if (resendLink == null || countdownLabel == null) {
+            return;
+        }
+        if (resendTimer != null) {
+            resendTimer.stop();
+        }
+
+        int[] remaining = {seconds};
+        resendLink.setDisable(true);
+        countdownLabel.setText(String.format(I18n.get("otp.resend.in"), remaining[0]));
+
+        resendTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            remaining[0]--;
+            if (remaining[0] <= 0) {
+                resendTimer.stop();
+                resendLink.setDisable(false);
+                countdownLabel.setText("");
+            } else {
+                countdownLabel.setText(String.format(I18n.get("otp.resend.in"), remaining[0]));
+            }
+        }));
+        resendTimer.setCycleCount(Timeline.INDEFINITE);
+        resendTimer.play();
+    }
+
+    // an@gmail.com -> an@***... : hiện 3 ký tự đầu + *** + phần @domain
+    private String maskEmail(String email) {
+        int at = email == null ? -1 : email.indexOf('@');
+        if (at <= 0) {
+            return email == null ? "" : email;
+        }
+        String name = email.substring(0, at);
+        return name.substring(0, Math.min(3, name.length())) + "***" + email.substring(at);
+    }
     // ====================================================================
     // 10. TẢI ICON SVG
     // ====================================================================
@@ -607,4 +929,5 @@ public class AuthController {
             throw new RuntimeException("Không thể tải icon SVG: " + fileName, e);
         }
     }
+
 }
