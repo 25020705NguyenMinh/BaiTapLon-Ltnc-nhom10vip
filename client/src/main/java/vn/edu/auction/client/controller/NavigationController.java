@@ -4,13 +4,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import vn.edu.auction.client.model.SessionData;
 
 import java.io.IOException;
 import vn.edu.auction.client.I18n;
 /**
- * Bộ điều hướng dùng chung cho toàn bộ ứng dụng Client[cite: 3].
- * Quản lý việc chuyển đổi Scene trên Stage chính thay vì tạo Stage mới tùy tiện[cite: 3].
+ * Bộ điều hướng dùng chung cho toàn bộ ứng dụng Client
+ * Quản lý việc chuyển đổi Scene trên Stage chính thay vì tạo Stage mới tùy tiện
  */
 public class NavigationController {
 
@@ -21,7 +20,7 @@ public class NavigationController {
     }
 
     /**
-     * Tải file FXML và hiển thị lên giao diện chính[cite: 2].
+     * Tải file FXML và hiển thị lên giao diện chính
      */
     public static void showView(String fxmlPath, String title) {
         try {

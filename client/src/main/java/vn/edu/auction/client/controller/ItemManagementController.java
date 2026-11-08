@@ -48,6 +48,8 @@ public class ItemManagementController {
     @FXML private TextField startingPriceField;
     @FXML private Label messageLabel;
 
+
+    //ObservableList: list dữ liệu động cho TableView, tbao khi có thay đổi, có thể cập nhật UI ngay lập tức
     private final ObservableList<ItemMock> itemList = FXCollections.observableArrayList();
     private long autoIdCounter = 1;
 

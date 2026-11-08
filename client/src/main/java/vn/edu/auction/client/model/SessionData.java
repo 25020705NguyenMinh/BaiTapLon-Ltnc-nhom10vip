@@ -1,10 +1,12 @@
 package vn.edu.auction.client.model;
 
 import vn.edu.auction.shared.dto.AuthResponse;
+import vn.edu.auction.shared.enums.UserRole;
 /**
  * Lớp Singleton quản lý phiên làm việc (Session) của người dùng ở phía Client.
- * Lưu trạng thái đăng nhập trong bộ nhớ và không lưu mật khẩu ra file[cite: 1, 2].
+ * Lưu trạng thái đăng nhập trong bộ nhớ và không lưu mật khẩu ra file
  */
+
 public class SessionData {
 
     private static SessionData instance;
@@ -12,15 +14,13 @@ public class SessionData {
     private Long userId;
     private String fullName;
     private String email;
-    private String role; // Hoặc kiểu enum UserRole tương ứng[cite: 2]
+    private UserRole role; 
     private String token;
 
-    // Private constructor để triển khai Singleton pattern
+    // singleton pattern
     private SessionData() {}
 
-    /**
-     * Trả về phiên hiện tại (Singleton instance)[cite: 2].
-     */
+    //singleton pattern
     public static synchronized SessionData getInstance() {
         if (instance == null) {
             instance = new SessionData();
@@ -29,7 +29,7 @@ public class SessionData {
     }
 
     /**
-     * Cập nhật thông tin session sau khi đăng nhập thành công[cite: 2].
+     * Cập nhật thông tin session sau khi đăng nhập thành công
      */
     /**
      * Nhận thẳng AuthResponse của server.
@@ -48,7 +48,7 @@ public class SessionData {
     }
 
     /**
-     * Xóa sạch thông tin session khi người dùng đăng xuất[cite: 2].
+     * Xóa sạch thông tin session khi người dùng đăng xuất.
      */
     public void clearSession() {
         this.userId = null;
@@ -58,14 +58,19 @@ public class SessionData {
         this.token = null;
     }
 
-    // Các hàm Getter[cite: 2]
+    // Các hàm Getter
     public Long getUserId() { return userId; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
-    public String getRole() { return role; }
+    public UserRole getRole() { return role; }
     public String getToken() { return token; }
 
     public boolean isLoggedIn() {
         return token != null && !token.isEmpty();
+    }
+
+    public void setSession(long l, String string, String string2, String string3, String string4) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSession'");
     }
 }
