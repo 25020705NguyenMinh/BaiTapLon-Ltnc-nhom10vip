@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="vn.edu.auction.client.browse.BrowseController" styleClass="app-shell">
+    <top><VBox>
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="topbar">
+            <VBox spacing="1" HBox.hgrow="ALWAYS"><Label text="TECH AUCTION" styleClass="brand"/><Label text="Không gian đấu giá của bạn" styleClass="brand-sub"/></VBox>
+            <Label fx:id="accountLabel" styleClass="account-label"/>
+            <Button fx:id="manageButton" text="Quản lý sản phẩm" onAction="#handleManageItems" styleClass="outline-button" visible="false" managed="false"/>
+            <Button fx:id="accountButton" onAction="#handleAccount" styleClass="outline-button"/>
+        </HBox>
+        <VBox spacing="7" styleClass="hero">
+            <Label text="KHÁM PHÁ &amp; ĐẤU GIÁ" styleClass="eyebrow"/>
+            <Label text="Tìm món đồ tiếp theo của bạn" styleClass="hero-title"/>
+            <Label text="Xem sản phẩm và theo dõi các phiên đấu giá. Bạn có thể khám phá ngay mà không cần đăng nhập." wrapText="true" styleClass="hero-subtitle"/>
+        </VBox>
+    </VBox></top>
+    <center><TabPane styleClass="browse-tabs" tabClosingPolicy="UNAVAILABLE">
+        <tabs><Tab text="Phiên đấu giá"><content><fx:include source="auction-list-view.fxml"/></content></Tab>
+        <Tab text="Sản phẩm"><content><fx:include source="item-list-view.fxml"/></content></Tab></tabs>
+    </TabPane></center>
+    <bottom><HBox styleClass="footer" alignment="CENTER_LEFT"><Label text="TECH AUCTION   •   KHÁM PHÁ TỰ DO" styleClass="footer-label"/><Region HBox.hgrow="ALWAYS"/><Label text="Dữ liệu minh họa" styleClass="footer-label"/></HBox></bottom>
+</BorderPane>

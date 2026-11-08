@@ -1,17 +1,21 @@
 package vn.edu.auction.shared.dto;
 
+import vn.edu.auction.shared.enums.UserRole;
+
 public class AuthResponse {
 
     private Long userId;
     private String fullName;
     private String email;
     private String token;
+    private UserRole role;
 
-    public AuthResponse(Long userId, String fullName, String email, String token){
+    public AuthResponse(Long userId, String fullName, String email, String token, UserRole role){
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
         this.token = token;
+        this.role = role;
     }
 
     public AuthResponse(){}
@@ -20,10 +24,12 @@ public class AuthResponse {
     public String getFullName(){return fullName;}
     public String getEmail(){return email;}
     public String getToken(){return token;}
+    public UserRole getRole(){return role;}
 
     public void setUserId(Long newUserId){this.userId = newUserId;}
     public void setFullName(String newFullName){this.fullName = newFullName;}
     public void setEmail(String newEmail){this.email = newEmail;}
     public void setToken(String newToken){this.token = newToken;}
+    public void setRole(UserRole newRole){this.role = newRole;}
 
 }
