@@ -38,7 +38,7 @@ public class Auction {
     public void setId(Long newId){this.id = newId;}
     public void setItemId(Long newItemId){this.itemId = newItemId;}
     public void setCurrentPrice(BigDecimal newCurrentPrice){this.currentPrice = newCurrentPrice;}
-    public void serHighestBidderId(Long newHighestBidderId){this.highestBidderId = newHighestBidderId;}
+    public void setHighestBidderId(Long newHighestBidderId){this.highestBidderId = newHighestBidderId;}
     public void setStartTime(LocalDateTime newStartTime){this.startTime = newStartTime;}
     public void setEndTime(LocalDateTime newEndTime){this.endTime = newEndTime;}
     public void setStatus(AuctionStatus newStatus){this.status = newStatus;}

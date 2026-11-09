@@ -16,6 +16,12 @@
     <artifactId>client</artifactId>
 
     <dependencies>
+        <!-- Jackson: chuyển DTO <-> JSON khi gọi API (cùng họ 2.19.x với server Spring Boot 3.5) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.19.2</version>
+        </dependency>
 <!--        dependency này là dùng cho ảnh svg-->
         <dependency>
             <groupId>com.github.weisj</groupId>
@@ -39,6 +45,12 @@
             <groupId>vn.edu.auction</groupId>
             <artifactId>shared</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>6.2.11</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

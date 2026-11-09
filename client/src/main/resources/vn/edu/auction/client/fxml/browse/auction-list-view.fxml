@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?><?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="vn.edu.auction.client.browse.AuctionListController" spacing="14" styleClass="screen">
+ <HBox alignment="CENTER_LEFT"><VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Phiên đấu giá" styleClass="screen-title"/><Label text="Chọn một phiên để xem thông tin chi tiết" styleClass="muted"/></VBox><Label text="DỮ LIỆU MẪU" styleClass="badge"/></HBox>
+ <HBox spacing="10"><TextField fx:id="searchField" promptText="Tìm phiên theo tên sản phẩm..." HBox.hgrow="ALWAYS" onAction="#handleSearch"/><Button text="Tìm kiếm" onAction="#handleSearch" styleClass="primary-button"/></HBox>
+ <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS"><columns>
+  <TableColumn fx:id="itemNameColumn" text="SẢN PHẨM" prefWidth="280"/><TableColumn fx:id="currentPriceColumn" text="GIÁ HIỆN TẠI" prefWidth="180"/><TableColumn fx:id="endTimeColumn" text="KẾT THÚC" prefWidth="240"/><TableColumn fx:id="statusColumn" text="TRẠNG THÁI" prefWidth="140"/>
+ </columns></TableView>
+ <HBox alignment="CENTER_LEFT" spacing="15"><Button text="Xem chi tiết  →" onAction="#handleOpenAuction" styleClass="primary-button"/><Label fx:id="messageLabel" styleClass="message-label"/></HBox>
+</VBox>
