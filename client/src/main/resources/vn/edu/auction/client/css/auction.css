@@ -1,0 +1,126 @@
+/* Layout chung */
+.auction-page {
+    -fx-background-color: #f8f9fa;
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.page-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a252c;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Card container */
+.auction-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+}
+
+/* Chi tiết sản phẩm & giá */
+.item-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.description {
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+}
+
+.current-price {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #16a34a;
+}
+
+.winner-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2563eb;
+}
+
+.result-status {
+    -fx-font-weight: bold;
+    -fx-text-fill: #d97706;
+}
+
+/* Nút bấm & Input */
+.primary-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.secondary-button {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #334155;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #cbd5e1;
+}
+
+.message-label {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 12px;
+}
+
+/* Lịch sử đặt giá */
+.bid-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+}
+
+.bid-row {
+    -fx-padding: 8px 0;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+}
+
+.bid-column {
+    -fx-pref-width: 170px;
+}
+
+.bidder-name {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.bid-amount {
+    -fx-font-weight: bold;
+    -fx-text-fill: #059669;
+}
+
+.bid-time {
+    -fx-text-fill: #475569;
+}
+
+.bid-secondary {
+    -fx-font-size: 11px;
+    -fx-text-fill: #94a3b8;
+}
+
+.empty-message {
+    -fx-text-fill: #64748b;
+    -fx-font-style: italic;
+}

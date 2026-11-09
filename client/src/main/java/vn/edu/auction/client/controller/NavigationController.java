@@ -48,7 +48,7 @@ public class NavigationController {
      * Chuyển sang màn hình Trang chủ[cite: 2].
      */
     public static void showHome() {
-        showView("/vn/edu/auction/client/fxml/home-view.fxml", "Trang Chủ - Hệ Thống Đấu Giá");
+        showView("/vn/edu/auction/client/fxml/home/home-view.fxml", "Trang Chủ - Hệ Thống Đấu Giá");
     }
 
     /**

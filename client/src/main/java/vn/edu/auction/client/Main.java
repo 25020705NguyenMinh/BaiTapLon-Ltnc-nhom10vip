@@ -5,44 +5,42 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import vn.edu.auction.client.navigation.Navigator;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage primaryStage) {
+        // Lưu Stage chính vào Navigator để quản lý điều hướng tập trung
+        Navigator.setPrimaryStage(primaryStage);
 
-        // Lấy đường dẫn đến file login-view.fxml
-        URL fxmlUrl = Main.class.getResource(
-                "/vn/edu/auction/client/fxml/auth/login-view.fxml"
-        );
+        try {
+            // Khởi chạy ban đầu trực tiếp vào Trang Chủ (Home View)
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/vn/edu/auction/client/fxml/home/home-view.fxml")
+            );
+            Parent root = loader.load();
 
-        // Tải giao diện từ FXML
-        FXMLLoader loader = new FXMLLoader(
-                fxmlUrl,
-                I18n.getBundle()
-        );  // load cả file fxml và file bundle
-        Parent root = loader.load();
+            Scene scene = new Scene(root, 1000, 700);
 
-        // Tạo Scene chứa giao diện
-        Scene scene = new Scene(root);
+            // Nạp CSS chung của ứng dụng nếu có
+            String cssPath = getClass().getResource("/vn/edu/auction/client/css/app.css") != null
+                    ? getClass().getResource("/vn/edu/auction/client/css/app.css").toExternalForm()
+                    : null;
+            if (cssPath != null) {
+                scene.getStylesheets().add(cssPath);
+            }
 
-        // Nạp CSS
-        URL cssUrl = Main.class.getResource(
-                "/vn/edu/auction/client/css/auth.css"
-        );
+            primaryStage.setTitle("Hệ Thống Đấu Giá Trực Tuyến - Trang Chủ");
+            primaryStage.setScene(scene);
+            primaryStage.show();
 
-        if (cssUrl != null) {
-            scene.getStylesheets().add(cssUrl.toExternalForm());
+        } catch (IOException e) {
+            System.err.println("Lỗi khi tải giao diện Trang Chủ:");
+            e.printStackTrace();
         }
-
-        // Thiết lập cửa sổ
-        stage.setTitle("Online Auction System");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
     }
 
     public static void main(String[] args) {

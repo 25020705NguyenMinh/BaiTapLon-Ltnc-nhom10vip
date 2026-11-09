@@ -1,54 +1,63 @@
 package vn.edu.auction.client.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import vn.edu.auction.client.model.SessionData;
+import vn.edu.auction.client.navigation.Navigator;
 
-/**
- * Controller xử lý màn hình trang chủ[cite: 1, 2].
- */
 public class HomeController {
 
-    @FXML private Label welcomeLabel;
-    @FXML private Button itemButton;
-    @FXML private Button auctionButton;
-    @FXML private Button manageItemButton;
-    @FXML private Button logoutButton;
-
     @FXML
-    public void initialize() {
-        // Lấy thông tin user hiện tại từ SessionData[cite: 2]
-        SessionData session = SessionData.getInstance();
-        if (session.isLoggedIn()) {
-            welcomeLabel.setText("Xin chào, " + session.getFullName() + "!");
+    private void openItems() {
+        handleBrowseAction();
+    }
+    @FXML
+    private void openAuctions() {
+        handleBrowseAction();
+    }
+    // Nút Quản lý sản phẩm
+    @FXML
+    private void openItemManagement() {
+        handleSellAction();
+    }
+    // Nút Bán hàng / Đăng sản phẩm
+    @FXML
+    private void handleSellAction() {
+        if (!isLoggedIn()) {
+            // Chưa đăng nhập -> Nhảy sang màn hình Đăng nhập
+            Navigator.navigateTo(Navigator.LOGIN_VIEW);
         } else {
-            welcomeLabel.setText("Xin chào, Khách!");
+            // Đã đăng nhập -> Cho phép vào màn hình Quản lý/Đăng sản phẩm
+            Navigator.navigateTo("/vn/edu/auction/client/fxml/home/item-management-view.fxml");
         }
     }
 
+    // Nút Xem/Tham gia Đấu giá
     @FXML
-    public void openItems() {
-        // Chuyển sang giao diện danh sách sản phẩm
-        NavigationController.showView("/vn/edu/auction/client/fxml/item-list-view.fxml", "Danh Sách Sản Phẩm");
+    private void handleBrowseAction() {
+        // Có thể cho xem danh sách trước, hoặc bắt đăng nhập tùy logic bài tập
+        if (!isLoggedIn()) {
+            Navigator.navigateTo(Navigator.LOGIN_VIEW);
+        } else {
+            Navigator.navigateTo(Navigator.BROWSE_VIEW);
+        }
+    }
+
+    // Nút Đăng nhập trên thanh Header
+    @FXML
+    private void handleLoginButton() {
+        Navigator.navigateTo(Navigator.LOGIN_VIEW);
     }
 
     @FXML
-    public void openAuctions() {
-        // Chuyển sang giao diện đấu giá[cite: 3]
-        NavigationController.showView("/vn/edu/auction/client/fxml/auction-view.fxml", "Sàn Đấu Giá");
-    }
-
-    @FXML
-    public void openItemManagement() {
-        // Chuyển sang giao diện quản lý sản phẩm[cite: 2, 3]
-        NavigationController.showView("/vn/edu/auction/client/fxml/item-management-view.fxml", "Quản Lý Sản Phẩm");
-    }
-
-    @FXML
-    public void handleLogout() {
-        // Xóa thông tin phiên đăng nhập và quay về màn hình đăng nhập[cite: 2]
+    private void handleLogout() {
+        // Xóa thông tin người dùng đang đăng nhập
         SessionData.getInstance().clearSession();
+
+        // Quay về màn hình đăng nhập
         NavigationController.showLogin();
+    }
+    // Hàm tiện ích kiểm tra xem đã đăng nhập hay chưa
+    private boolean isLoggedIn() {
+        return SessionData.getInstance().isLoggedIn();
     }
 }

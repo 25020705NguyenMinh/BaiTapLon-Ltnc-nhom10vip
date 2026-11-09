@@ -235,7 +235,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 token,
-                user.getRole().name());
+                user.getRole());
     }
     // ==================== GIAI ĐOẠN B: QUÊN MẬT KHẨU ====================
     @Transactional
