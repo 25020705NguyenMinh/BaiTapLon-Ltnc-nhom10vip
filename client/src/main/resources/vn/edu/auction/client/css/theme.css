@@ -1,0 +1,112 @@
+.root, .dialog-pane {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-base: #ffffff;
+    -fx-accent: #237657;
+    -fx-focus-color: #237657;
+    -fx-faint-focus-color: #23765722;
+    -fx-background-color: #f4f7f5;
+    -fx-text-fill: #203b31;
+}
+.label { -fx-text-fill: #203b31; }
+.button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #245a44;
+    -fx-border-color: #d3dfd7;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 10 18;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.button:hover { -fx-background-color: #edf5ef; -fx-border-color: #8cb29d; }
+.button:focused { -fx-effect: dropshadow(gaussian, #23765733, 5, 0, 0, 0); }
+.button.primary-button, .button.full-width-button {
+    -fx-background-color: #237657;
+    -fx-border-color: #237657;
+    -fx-text-fill: white;
+    -fx-padding: 11 20;
+}
+.button.primary-button:hover, .button.full-width-button:hover { -fx-background-color: #195d42; -fx-border-color: #195d42; }
+.button.primary-button:pressed { -fx-background-color: #124a34; }
+.button.secondary-button, .button.outline-button { -fx-text-fill: #237657; -fx-border-color: #237657; }
+.button.danger-button { -fx-background-color: #b94343; -fx-border-color: #b94343; -fx-text-fill: white; }
+.button.danger-button:hover { -fx-background-color: #a13434; }
+.text-input, .input-field {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #203b31;
+    -fx-prompt-text-fill: #87988e;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #d3dfd7;
+    -fx-padding: 11 12;
+}
+.text-input:focused { -fx-border-color: #237657; -fx-border-width: 1; }
+.password-container { -fx-border-color: #d3dfd7; -fx-background-radius: 8; -fx-border-radius: 8; }
+.password-container .text-input { -fx-border-color: transparent; -fx-background-color: transparent; }
+.auth-root { -fx-background-color: #f4f7f5; -fx-font-family: "Segoe UI", "Arial", sans-serif; }
+.auth-root .app-title, .auth-root .otp-title { -fx-text-fill: #174c3c; -fx-font-size: 27px; }
+.auth-root .subtitle, .auth-root .footer-text, .otp-description, .choice-desc { -fx-text-fill: #718479; }
+.auth-root .field-label, .input-label { -fx-text-fill: #203b31; -fx-font-size: 13px; }
+.auth-root .primary-button { -fx-font-size: 14px; }
+.hyperlink, .auth-link, .hyperlink.resend-link { -fx-text-fill: #237657; -fx-font-size: 13px; }
+.hyperlink:hover { -fx-text-fill: #174c3c; -fx-underline: true; }
+.auth-root .eye-button, .auth-root .icon-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 8 10;
+}
+.auth-root .social-icon-circle {
+    -fx-background-color: white;
+    -fx-border-color: #d3dfd7;
+    -fx-background-radius: 28;
+    -fx-border-radius: 28;
+    -fx-padding: 10;
+}
+.auth-root .language-combo { -fx-border-color: #d3dfd7; -fx-background-radius: 8; -fx-border-radius: 8; }
+.choice-card-selected { -fx-background-color: #e8f3ec; -fx-border-color: #237657; }
+.otp-digit:focused { -fx-border-color: #237657; }
+.brand { -fx-text-fill: #174c3c; -fx-font-weight: bold; }
+.hero { -fx-background-color: #174c3c; }
+.hero .eyebrow { -fx-text-fill: #b6d8c6; }
+.hero .hero-title { -fx-text-fill: white; }
+.hero .hero-subtitle { -fx-text-fill: #d8e9df; }
+.muted, .brand-sub, .account-label { -fx-text-fill: #718479; }
+.badge { -fx-text-fill: #237657; -fx-background-color: #e8f3ec; }
+.table-view { -fx-border-color: #dde6df; -fx-background-radius: 8; -fx-border-radius: 8; }
+.table-view .column-header, .table-view .column-header-background, .table-view .filler { -fx-background-color: #edf3ef; }
+.table-view .column-header .label { -fx-text-fill: #647d6f; -fx-font-size: 12px; }
+.table-row-cell { -fx-cell-size: 48; -fx-background-color: white; -fx-border-color: transparent transparent #edf2ee transparent; }
+.table-row-cell:empty { -fx-border-color: transparent; }
+.table-row-cell:filled:hover { -fx-background-color: #f0f7f2; }
+.table-row-cell:filled:selected { -fx-background-color: #e0eee4; }
+.table-row-cell:filled:selected .text { -fx-fill: #174c3c; }
+.table-cell { -fx-text-fill: #203b31; -fx-font-size: 14px; }
+.header-label { -fx-text-fill: #174c3c; }
+.message-label { -fx-text-fill: #647d6f; -fx-font-style: normal; }
+.auth-root .message-label, .field-error, .error-label { -fx-text-fill: #b94343; }
+.input-field.input-error, .input-field.input-error:focused, .password-container.input-error { -fx-border-color: #b94343; }
+.auction-dialog { -fx-background-color: white; -fx-padding: 0; -fx-pref-width: 660; }
+.auction-dialog > .header-panel { -fx-background-color: #174c3c; -fx-padding: 22 26; }
+.auction-dialog > .header-panel .label { -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold; }
+.auction-dialog > .content { -fx-padding: 22 26 10 26; }
+.auction-dialog > .button-bar { -fx-background-color: #f4f7f5; -fx-padding: 16 26; }
+.detail-content { -fx-padding: 0; -fx-spacing: 16; }
+.detail-price { -fx-text-fill: #174c3c; -fx-font-size: 28px; -fx-font-weight: bold; }
+.detail-caption { -fx-text-fill: #718479; -fx-font-size: 12px; }
+.detail-meta { -fx-background-color: #f4f7f5; -fx-background-radius: 8; -fx-padding: 14; }
+.detail-note { -fx-text-fill: #718479; -fx-font-size: 13px; -fx-padding: 4 0; }
+
+.history-panel { -fx-background-color: white; -fx-border-color: #dde6df; -fx-border-radius: 8; -fx-padding: 16; }
+.history-title { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #174c3c; }
+.history-empty { -fx-text-fill: #718479; -fx-padding: 20 0; }
+.bid-history-chart { -fx-padding: 8 0 0 0; }
+.bid-history-chart .chart-plot-background { -fx-background-color: #f8fbf9; }
+.bid-history-chart .chart-series-line { -fx-stroke: #237657; -fx-stroke-width: 2.5px; }
+.bid-history-chart .chart-line-symbol { -fx-background-color: #237657, white; -fx-background-insets: 0, 2; -fx-padding: 4; }
+.bid-history-chart .chart-horizontal-grid-lines { -fx-stroke: #e2ece6; }
+.bid-history-chart .axis { -fx-tick-label-fill: #718479; -fx-tick-label-font-size: 11px; }
+.detail-scroll, .detail-scroll > .viewport { -fx-background-color: white; -fx-border-color: transparent; }

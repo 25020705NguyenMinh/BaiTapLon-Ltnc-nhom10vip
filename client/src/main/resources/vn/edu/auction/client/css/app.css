@@ -1,0 +1,166 @@
+/* Áp dụng font và nền chung cho toàn bộ giao diện */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f8f9fa;
+}
+
+/* Kiểu cho các dòng tiêu đề */
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 10px 0;
+}
+
+/* Kiểu nút bấm mặc định */
+.button {
+    -fx-background-color: #e9ecef;
+    -fx-text-fill: #495057;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #dee2e6;
+}
+
+/* Nút thao tác chính (Thêm, Sửa) */
+.primary-button {
+    -fx-background-color: #237657;
+    -fx-text-fill: white;
+    -fx-border-color: #195d42;
+}
+
+.primary-button:hover {
+    -fx-background-color: #195d42;
+}
+
+/* Nút nguy hiểm (Xóa, Đăng xuất) */
+.danger-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-border-color: #b02a37;
+}
+
+.danger-button:hover {
+    -fx-background-color: #c82333;
+}
+
+/* Dòng thông báo trạng thái */
+.message-label {
+    -fx-text-fill: #198754; /* Màu xanh lá */
+    -fx-font-style: italic;
+    -fx-font-size: 13px;
+    -fx-padding: 5px 0;
+}
+
+/* Căn chỉnh TableView */
+.table-view {
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+.table-view .column-header {
+    -fx-background-color: #e9ecef;
+    -fx-font-weight: bold;
+}
+/* ===== BỔ SUNG CHO RESET PASSWORD VIEW ===== */
+.auth-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 16, 0, 0, 4);
+    -fx-padding: 32px;
+}
+
+.subtitle-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6c757d;
+}
+
+.requirements-box {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 8px;
+}
+
+.requirements-title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #343a40;
+    -fx-font-size: 13px;
+}
+
+.requirement-item {
+    -fx-font-size: 12px;
+    -fx-text-fill: #198754; /* Màu xanh lá cho các dòng yêu cầu */
+}
+
+.input-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #212529;
+    -fx-font-size: 13px;
+}
+
+.text-field, .password-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #237657;
+    -fx-border-width: 1.5px;
+}
+
+.password-container {
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-background-color: #ffffff;
+}
+
+.password-container:focused-within {
+    -fx-border-color: #237657;
+    -fx-border-width: 1.5px;
+}
+
+.password-container .text-field,
+.password-container .password-field {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 4px 8px;
+    -fx-cursor: hand;
+}
+
+.full-width-button {
+    -fx-background-color: #237657;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+    -fx-background-radius: 6px;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.full-width-button:hover {
+    -fx-background-color: #195d42;
+}
+
+.error-label {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 12px;
+}

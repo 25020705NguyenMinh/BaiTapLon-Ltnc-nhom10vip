@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?><?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="vn.edu.auction.client.browse.ItemListController" spacing="14" styleClass="screen">
+ <HBox alignment="CENTER_LEFT"><VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Sản phẩm" styleClass="screen-title"/><Label text="Khám phá các sản phẩm trên sàn" styleClass="muted"/></VBox></HBox>
+ <HBox spacing="10"><TextField fx:id="searchField" promptText="Tìm theo tên sản phẩm..." HBox.hgrow="ALWAYS" onAction="#handleSearch"/><Button text="Tìm kiếm" onAction="#handleSearch" styleClass="primary-button"/></HBox>
+ <TableView fx:id="itemTable" VBox.vgrow="ALWAYS"><columns>
+  <TableColumn fx:id="nameColumn" text="SẢN PHẨM" prefWidth="400"/><TableColumn fx:id="priceColumn" text="GIÁ KHỞI ĐIỂM" prefWidth="220"/><TableColumn fx:id="statusColumn" text="TRẠNG THÁI" prefWidth="180"/>
+ </columns></TableView><Label fx:id="messageLabel" styleClass="message-label"/>
+</VBox>
