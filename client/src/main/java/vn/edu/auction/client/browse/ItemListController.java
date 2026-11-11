@@ -8,6 +8,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import vn.edu.auction.client.api.BaseApiClient;
+import vn.edu.auction.client.api.FxAsync;
+import vn.edu.auction.client.api.ItemApiClient;
+import vn.edu.auction.client.model.SessionData;
 import vn.edu.auction.shared.dto.ItemResponse;
 import vn.edu.auction.shared.enums.ItemStatus;
 
@@ -39,6 +43,7 @@ public class ItemListController {
 
     @FXML
     private void initialize() {
+        itemTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         priceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("startingPrice")
@@ -47,44 +52,47 @@ public class ItemListController {
                 new PropertyValueFactory<>("status")
         );
 
+        priceColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            @Override protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : java.text.NumberFormat.getNumberInstance(
+                        Locale.forLanguageTag("vi-VN")).format(value) + " đ");
+            }
+        });
+        statusColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            @Override protected void updateItem(ItemStatus value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : switch (value) {
+                    case ACTIVE -> "Đang niêm yết";
+                    case DRAFT -> "Chờ phê duyệt";
+                    case SOLD -> "Đã bán";
+                    case REMOVED -> "Đã gỡ";
+                });
+            }
+        });
         loadItems();
     }
 
+    private final ItemApiClient itemApi = new ItemApiClient();
+    private static Runnable reloadHook = () -> { };
+
+    /** Được BrowseController gọi khi đăng nhập / đăng xuất. */
+    public static void reload() { reloadHook.run(); }
+
     public void loadItems() {
-        allItems.setAll(
-                new ItemResponse(
-                        1L,
-                        101L,
-                        "Laptop Dell XPS 13",
-                        "Laptop văn phòng",
-                        new BigDecimal("18000000"),
-                        ItemStatus.ACTIVE
-                ),
-                new ItemResponse(
-                        2L,
-                        102L,
-                        "iPhone 15",
-                        "Điện thoại đã qua sử dụng",
-                        new BigDecimal("15000000"),
-                        ItemStatus.ACTIVE
-                ),
-                new ItemResponse(
-                        3L,
-                        103L,
-                        "Máy ảnh Sony",
-                        "Máy ảnh mirrorless",
-                        new BigDecimal("12000000"),
-                        ItemStatus.DRAFT
-                )
-        );
-
+        reloadHook = this::loadItems;
         itemTable.setItems(allItems);
-
-        if (allItems.isEmpty()) {
-            showMessage("Không có sản phẩm.");
-        } else {
-            showMessage("");
+        itemTable.setPlaceholder(new Label("Chưa có sản phẩm nào."));
+        if (!SessionData.getInstance().isLoggedIn()) {
+            allItems.clear();
+            showMessage("Vui lòng đăng nhập để xem danh sách sản phẩm.");
+            return;
         }
+        showMessage("Đang tải sản phẩm...");
+        FxAsync.run(itemApi::getAllItems, items -> {
+            allItems.setAll(items);
+            showMessage(items.isEmpty() ? "Không có sản phẩm." : "");
+        }, err -> showMessage(BaseApiClient.describe(err)));
     }
 
     @FXML

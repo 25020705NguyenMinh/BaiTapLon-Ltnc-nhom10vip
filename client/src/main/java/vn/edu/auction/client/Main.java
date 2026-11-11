@@ -2,48 +2,24 @@ package vn.edu.auction.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import vn.edu.auction.client.controller.NavigationController;
 import vn.edu.auction.client.navigation.Navigator;
 
-import java.io.IOException;
-
 public class Main extends Application {
-
-    @Override
-    public void start(Stage primaryStage) {
-        // Lưu Stage chính vào Navigator để quản lý điều hướng tập trung
-        Navigator.setPrimaryStage(primaryStage);
-
-        try {
-            // Khởi chạy ban đầu trực tiếp vào Trang Chủ (Home View)
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/vn/edu/auction/client/fxml/home/home-view.fxml")
-            );
-            Parent root = loader.load();
-
-            Scene scene = new Scene(root, 1000, 700);
-
-            // Nạp CSS chung của ứng dụng nếu có
-            String cssPath = getClass().getResource("/vn/edu/auction/client/css/app.css") != null
-                    ? getClass().getResource("/vn/edu/auction/client/css/app.css").toExternalForm()
-                    : null;
-            if (cssPath != null) {
-                scene.getStylesheets().add(cssPath);
-            }
-
-            primaryStage.setTitle("Hệ Thống Đấu Giá Trực Tuyến - Trang Chủ");
-            primaryStage.setScene(scene);
-            primaryStage.show();
-
-        } catch (IOException e) {
-            System.err.println("Lỗi khi tải giao diện Trang Chủ:");
-            e.printStackTrace();
-        }
+    @Override public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/vn/edu/auction/client/fxml/browse/browse-view.fxml"), I18n.getBundle());
+        Scene scene = new Scene(loader.load(), 1120, 720);
+        scene.getStylesheets().add(Main.class.getResource("/vn/edu/auction/client/css/browse.css").toExternalForm());
+        vn.edu.auction.client.ui.UiTheme.apply(scene);
+        Navigator.setStage(stage);
+        NavigationController.setPrimaryStage(stage);
+        stage.setTitle("Sàn đấu giá | Khám phá");
+        stage.setMinWidth(880);
+        stage.setMinHeight(620);
+        stage.setScene(scene);
+        stage.show();
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 }

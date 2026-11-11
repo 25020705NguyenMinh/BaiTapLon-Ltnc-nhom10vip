@@ -1,13 +1,13 @@
 
 .auth-root {
-    -fx-background-color: #f4f7fb;
-    -fx-font-family: "Arial";
+    -fx-background-color: #f4f7f5;
+    -fx-font-family: "Segoe UI";
 }
 
 .app-title {
     -fx-font-size: 27px;
     -fx-font-weight: bold;
-    -fx-text-fill: #174ea6;
+    -fx-text-fill: #174c3c;
 }
 
 .subtitle {
@@ -32,13 +32,13 @@
 }
 
 .input-field:focused {
-    -fx-border-color: #2563eb;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
 
 .primary-button {
-    -fx-background-color: #2563eb;
+    -fx-background-color: #237657;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -49,17 +49,17 @@
 }
 
 .primary-button:hover {
-    -fx-background-color: #1d4ed8;
+    -fx-background-color: #195d42;
 }
 
 .primary-button:pressed {
-    -fx-background-color: #1e40af;
+    -fx-background-color: #124a34;
 }
 
 .secondary-button {
     -fx-background-color: white;
-    -fx-text-fill: #2563eb;
-    -fx-border-color: #2563eb;
+    -fx-text-fill: #237657;
+    -fx-border-color: #237657;
     -fx-border-width: 1px;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
@@ -70,12 +70,12 @@
 }
 
 .secondary-button:hover {
-    -fx-background-color: #eff6ff;
+    -fx-background-color: #e8f3ec;
 }
 
 
 .auth-link {
-    -fx-text-fill: #2563eb;
+    -fx-text-fill: #237657;
     -fx-font-size: 13px;
     -fx-border-color: transparent;
     -fx-underline: false;
@@ -83,7 +83,7 @@
 }
 
 .auth-link:hover {
-    -fx-text-fill: #1d4ed8;
+    -fx-text-fill: #195d42;
     -fx-underline: true;
 }
 
@@ -106,7 +106,7 @@
    }
 
 .password-container:focused-within {
-    -fx-border-color: #2563eb;
+    -fx-border-color: #237657;
 }
 
 .password-input {
@@ -177,8 +177,8 @@
 }
 
 .choice-card-selected {
-    -fx-background-color: #eff6ff;
-    -fx-border-color: #2563eb;
+    -fx-background-color: #e8f3ec;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
@@ -266,7 +266,7 @@
 
 /* Viền xanh khi chọn ô OTP */
 .otp-digit:focused {
-    -fx-border-color: #2563eb;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
@@ -282,7 +282,7 @@
 
 /* Continue */
 .primary-button {
-    -fx-background-color: #2563eb;
+    -fx-background-color: #237657;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -290,7 +290,7 @@
     -fx-background-radius: 8px;
     -fx-cursor: hand;
 }.hyperlink {
-     -fx-text-fill: #2563eb;
+     -fx-text-fill: #237657;
      -fx-font-size: 13px;
      -fx-font-weight: normal;
      -fx-underline: false;
@@ -300,14 +300,14 @@
  }
 
 .hyperlink:hover {
-    -fx-text-fill: #2563eb;
+    -fx-text-fill: #237657;
     -fx-underline: true;
 }
 /* Tiêu đề OTP */
 .otp-title {
     -fx-font-size: 27px;
     -fx-font-weight: bold;
-    -fx-text-fill: #174ea6;
+    -fx-text-fill: #174c3c;
 }
 
 /* Nội dung mô tả */
@@ -345,13 +345,13 @@
 }
 
 .otp-digit:focused {
-    -fx-border-color: #2563eb;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
 /* Link gửi lại mã */
 .hyperlink.resend-link {
-    -fx-text-fill: #2563eb;
+    -fx-text-fill: #237657;
     -fx-font-size: 13px;
     -fx-underline: true;
     -fx-border-color: transparent;
@@ -360,7 +360,7 @@
 }
 
 .hyperlink.resend-link:hover {
-    -fx-text-fill: #1d4ed8;
+    -fx-text-fill: #195d42;
 }
 
 /* Nút quay lại */
@@ -380,9 +380,9 @@
 }
 
 .hyperlink.otp-back-link:hover {
-    -fx-text-fill: #2563eb;
-    -fx-background-color: #eff6ff;
-    -fx-border-color: #2563eb;
+    -fx-text-fill: #237657;
+    -fx-background-color: #e8f3ec;
+    -fx-border-color: #237657;
 }
 /* Thẻ thông báo danh sách yêu cầu mật khẩu (xám nhẹ, bo tròn) */
 .requirements-box {

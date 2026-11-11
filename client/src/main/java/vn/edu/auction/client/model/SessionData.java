@@ -50,6 +50,8 @@ public class SessionData {
     /**
      * Xóa sạch thông tin session khi người dùng đăng xuất.
      */
+    public void setFullName(String fullName) { this.fullName = fullName; }
+
     public void clearSession() {
         this.userId = null;
         this.fullName = null;

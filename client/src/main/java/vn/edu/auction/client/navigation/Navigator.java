@@ -4,93 +4,55 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import vn.edu.auction.client.I18n;
 
 import java.io.IOException;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
-public class Navigator {
+/**
+ * FILE MỚI - chuyển giữa các màn hình (thay cho hàm switchView cũ trong AuthController).
+ * Mỗi lần load FXML đều truyền ResourceBundle để FXML dùng được cú pháp %key.
+ */
+public final class Navigator {
 
-    private static Stage primaryStage;
+    private static final String BASE_PATH = "/vn/edu/auction/client/";
 
-    public static void setPrimaryStage(Stage stage) {
-        primaryStage = stage;
+    private static Stage stage;
+    private static String currentFxml;
+    private static String currentTitleKey;
+
+    private Navigator() {
     }
 
-    public static Stage getPrimaryStage() {
-        return primaryStage;
+    public static void setStage(Stage primaryStage) {
+        stage = primaryStage;
     }
 
-    public static void setStage(Stage stage) {
-        setPrimaryStage(stage);
-    }
-
-    public static void show() {
-        if (primaryStage != null && !primaryStage.isShowing()) {
-            primaryStage.show();
-        }
-    }
-
-    public static void show(String fxmlPath) {
-        navigateTo(fxmlPath);
-    }
-
-    public static void show(String fxmlPath, String titleKey) {
-        navigateTo(fxmlPath);
-        if (primaryStage != null && titleKey != null && !titleKey.isEmpty()) {
-            primaryStage.setTitle(titleKey);
-        }
-    }
-
-    public static void showView(String fxmlPath) {
-        navigateTo(fxmlPath);
-    }
-
-    /**
-     * Chuyển đổi màn hình thông qua đường dẫn FXML (đã hỗ trợ nạp ResourceBundle i18n)
-     */
-    public static void navigateTo(String fxmlPath) {
-        if (primaryStage == null) {
-            System.err.println("PrimaryStage chưa được khởi tạo trong Navigator!");
-            return;
+    public static void show(String fxmlFile, String titleKey) throws IOException {
+        var resource = Navigator.class.getResource(BASE_PATH + fxmlFile);
+        if (resource == null) {
+            throw new IOException("Không tìm thấy giao diện: " + fxmlFile);
         }
 
-        try {
-            FXMLLoader loader = new FXMLLoader(Navigator.class.getResource(fxmlPath));
+        Parent root = FXMLLoader.load(resource, I18n.getBundle());
+        Scene scene = new Scene(root);
 
-            // Nạp file ngôn ngữ mặc định (messages_vi.properties) để tránh lỗi "No resources specified"
-            try {
-                ResourceBundle bundle = ResourceBundle.getBundle(
-                        "vn.edu.auction.client.i18n.messages",
-                        Locale.forLanguageTag("vi-VN")
-                );
-                loader.setResources(bundle);
-            } catch (Exception e) {
-                System.out.println("Cảnh báo: Không thể tải file i18n ResourceBundle, tiếp tục không có bundle.");
-            }
-
-            Parent root = loader.load();
-
-            if (primaryStage.getScene() != null) {
-                primaryStage.getScene().setRoot(root);
-            } else {
-                primaryStage.setScene(new Scene(root, 1000, 700));
-            }
-
-            show();
-
-        } catch (IOException e) {
-            System.err.println("Không thể chuyển sang màn hình: " + fxmlPath);
-            e.printStackTrace();
+        var css = Navigator.class.getResource(BASE_PATH + "css/auth.css");
+        if (css != null) {
+            scene.getStylesheets().add(css.toExternalForm());
         }
+
+        vn.edu.auction.client.ui.UiTheme.apply(scene);
+        stage.setScene(scene);
+        stage.setTitle(I18n.get(titleKey));
+        stage.sizeToScene();
+        stage.centerOnScreen();
+
+        currentFxml = fxmlFile;
+        currentTitleKey = titleKey;
     }
 
-    // --- CÁC ĐƯỜNG DẪN MÀN HÌNH CHUẨN TRONG DỰ ÁN ---
-    public static final String HOME_VIEW = "/vn/edu/auction/client/fxml/home/home-view.fxml";
-    public static final String LOGIN_VIEW = "/vn/edu/auction/client/fxml/auth/login-view.fxml";
-    public static final String REGISTER_VIEW = "/vn/edu/auction/client/fxml/auth/register-view.fxml";
-    public static final String BROWSE_VIEW = "/vn/edu/auction/client/fxml/browse/browse-view.fxml";
-    public static final String AUCTION_DETAIL_VIEW = "/vn/edu/auction/client/fxml/auction/auction-detail-view.fxml";
-    public static final String BID_HISTORY_VIEW = "/vn/edu/auction/client/fxml/auction/bid-history-view.fxml";
-    public static final String AUCTION_RESULT_VIEW = "/vn/edu/auction/client/fxml/auction/auction-result-view.fxml";
+    /** Load lại màn hình hiện tại (dùng khi đổi ngôn ngữ). */
+    public static void reload() throws IOException {
+        show(currentFxml, currentTitleKey);
+    }
 }

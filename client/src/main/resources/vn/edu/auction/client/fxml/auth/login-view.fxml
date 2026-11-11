@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="TOP_CENTER" prefHeight="680" prefWidth="420" spacing="12" styleClass="auth-root"
+<VBox alignment="TOP_CENTER" prefHeight="590" prefWidth="440" spacing="12" styleClass="auth-root"
       xmlns="http://javafx.com/javafx/17.0.12"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="vn.edu.auction.client.auth.AuthController">
@@ -63,7 +63,7 @@
 <!--        &lt;!&ndash; Nút Facebook &ndash;&gt;-->
 <!--        <Button onAction="#handleFacebookLogin" styleClass="social-icon-circle">-->
 <!--            <graphic>-->
-<!--                <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">-->
+<!--                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">-->
 <!--                    <image><Image url="@../../icons/Face_circle.png" /></image>-->
 <!--                </ImageView>-->
 <!--            </graphic>-->
@@ -72,7 +72,7 @@
         <!-- Nút Google -->
         <Button onAction="#handleGoogleLogin" styleClass="social-icon-circle">
             <graphic>
-                <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                     <image><Image url="@../../icons/gglogo.png" /></image>
                 </ImageView>
             </graphic>

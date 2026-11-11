@@ -35,6 +35,13 @@ public class NavigationController {
                 } else {
                     scene.setRoot(root);
                 }
+                scene.getStylesheets().clear();
+                if (fxmlPath.contains("/fxml/browse/")) {
+                    scene.getStylesheets().add(NavigationController.class.getResource("/vn/edu/auction/client/css/browse.css").toExternalForm());
+                } else if (fxmlPath.contains("/fxml/auth/")) {
+                    scene.getStylesheets().add(NavigationController.class.getResource("/vn/edu/auction/client/css/auth.css").toExternalForm());
+                }
+                vn.edu.auction.client.ui.UiTheme.apply(scene);
                 primaryStage.setTitle(title);
                 primaryStage.show();
             }
@@ -48,7 +55,21 @@ public class NavigationController {
      * Chuyển sang màn hình Trang chủ[cite: 2].
      */
     public static void showHome() {
-        showView("/vn/edu/auction/client/fxml/home/home-view.fxml", "Trang Chủ - Hệ Thống Đấu Giá");
+        showView("/vn/edu/auction/client/fxml/home-view.fxml", "Trang Chủ - Hệ Thống Đấu Giá");
+    }
+
+    public static void showBrowse() {
+        showView("/vn/edu/auction/client/fxml/browse/browse-view.fxml", "Sàn đấu giá | Khám phá");
+    }
+
+    public static void showProducts() {
+        showBrowse();
+        if (primaryStage != null && primaryStage.getScene() != null
+                && primaryStage.getScene().getRoot() instanceof javafx.scene.layout.BorderPane pane
+                && pane.getCenter() instanceof javafx.scene.control.TabPane tabs
+                && tabs.getTabs().size() > 1) {
+            tabs.getSelectionModel().select(1);
+        }
     }
 
     /**

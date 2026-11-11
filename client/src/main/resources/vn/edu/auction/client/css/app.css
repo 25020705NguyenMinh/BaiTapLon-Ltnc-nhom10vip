@@ -30,13 +30,13 @@
 
 /* Nút thao tác chính (Thêm, Sửa) */
 .primary-button {
-    -fx-background-color: #0d6efd;
+    -fx-background-color: #237657;
     -fx-text-fill: white;
-    -fx-border-color: #0b5ed7;
+    -fx-border-color: #195d42;
 }
 
 .primary-button:hover {
-    -fx-background-color: #0b5ed7;
+    -fx-background-color: #195d42;
 }
 
 /* Nút nguy hiểm (Xóa, Đăng xuất) */
@@ -116,7 +116,7 @@
 }
 
 .text-field:focused, .password-field:focused {
-    -fx-border-color: #0d6efd;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
@@ -128,7 +128,7 @@
 }
 
 .password-container:focused-within {
-    -fx-border-color: #0d6efd;
+    -fx-border-color: #237657;
     -fx-border-width: 1.5px;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .full-width-button {
-    -fx-background-color: #2563eb;
+    -fx-background-color: #237657;
     -fx-text-fill: white;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
@@ -157,7 +157,7 @@
 }
 
 .full-width-button:hover {
-    -fx-background-color: #1d4ed8;
+    -fx-background-color: #195d42;
 }
 
 .error-label {

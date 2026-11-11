@@ -219,6 +219,9 @@ public class AuthController {
             showMessage(I18n.get("error.openView"));
             return;
         }
+        if (!stage.isShowing()) {
+            return;
+        }
         // 1) Lưu AuthResponse (có token) vào phiên để các màn hình sau dùng gọi API.
         SessionData.getInstance().setSession(response);
 
@@ -228,6 +231,11 @@ public class AuthController {
             passwordField.clear();
         }
         RegisterData.reset();
+
+        if (Boolean.TRUE.equals(stage.getProperties().get("auction.auth.popup"))) {
+            stage.close();
+            return;
+        }
 
         // 3) Báo cho các bộ điều hướng biết cửa sổ chính, rồi chuyển tới trang chủ.
         //    VÌ SAO set cả hai: Main chưa gọi setStage/setPrimaryStage; thiếu bước này
@@ -254,6 +262,10 @@ public class AuthController {
     private void startLocalCallbackServer() {
         try {
             com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress(8081), 0);
+            Stage authStage = findStage();
+            if (authStage != null && Boolean.TRUE.equals(authStage.getProperties().get("auction.auth.popup"))) {
+                authStage.getProperties().put("auction.google.callback", server);
+            }
 
             server.createContext("/callback", exchange -> {
                 try {
@@ -632,6 +644,7 @@ public class AuthController {
         var css = getClass().getResource(AUTH_CSS);
         if (css != null && !scene.getStylesheets().contains(css.toExternalForm())) {
             scene.getStylesheets().add(css.toExternalForm());
+            vn.edu.auction.client.ui.UiTheme.apply(scene);
         }
     }
 
