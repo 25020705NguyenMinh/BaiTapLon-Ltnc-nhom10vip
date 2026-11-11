@@ -1,5 +1,7 @@
 package vn.edu.auction.server.repository;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import jakarta.persistence.LockModeType;
@@ -15,4 +17,8 @@ public interface AuctionRepository extends JpaRepository<AuctionEntity, Long> {
 
     boolean existsByItemId(Long itemId);
     List<AuctionEntity> findByStatus(AuctionStatus status);
+    @Query("select a.id from AuctionEntity a where a.status in :statuses and a.endTime <= :now")
+    List<Long> findExpiredIds(@Param("statuses") Collection<AuctionStatus> statuses,
+                              @Param("now") LocalDateTime now);
 }
+

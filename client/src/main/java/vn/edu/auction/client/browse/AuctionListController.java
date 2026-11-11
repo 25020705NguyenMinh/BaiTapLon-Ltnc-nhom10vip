@@ -15,8 +15,11 @@ import javafx.stage.Stage;
 import vn.edu.auction.client.model.SessionData;
 import vn.edu.auction.shared.dto.AuctionResponse;
 import vn.edu.auction.shared.enums.AuctionStatus;
+import vn.edu.auction.client.api.*;
 
 public class AuctionListController {
+    private final AuctionApiClient auctionApi = new AuctionApiClient();
+    private Runnable unsubscribe;
     @FXML private TableView<AuctionResponse> auctionTable;
     @FXML private TableColumn<AuctionResponse, String> itemNameColumn;
     @FXML private TableColumn<AuctionResponse, BigDecimal> currentPriceColumn;
@@ -54,6 +57,10 @@ public class AuctionListController {
             return row;
         });
         loadAuctions();
+        unsubscribe = AuctionRealtimeClient.getInstance().subscribe(this::onAuctionEvent);
+        auctionTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null && unsubscribe != null) { unsubscribe.run(); unsubscribe = null; }
+        });
     }
     public void loadAuctions() {
         LocalDateTime now = LocalDateTime.now();
@@ -65,6 +72,28 @@ public class AuctionListController {
         auctionTable.setItems(auctions);
         auctionTable.setPlaceholder(new Label("Chưa có phiên đấu giá nào."));
         showMessage(auctions.isEmpty() ? "Không có phiên đấu giá." : "");
+        showMessage("Đang tải phiên đấu giá...");
+        FxAsync.run(auctionApi::getAllAuctions,
+                list -> {
+                    auctions.setAll(list);
+                    auctionTable.setItems(auctions);
+                    auctionTable.setPlaceholder(new Label("Chưa có phiên đấu giá nào."));
+                    showMessage(list.isEmpty() ? "Không có phiên đấu giá." : "");
+                },
+                err -> showMessage(BaseApiClient.describe(err)));
+    }
+
+    private void onAuctionEvent(AuctionRealtimeClient.Event ev) {
+        for (AuctionResponse a : auctions) {
+            if (a.getId().equals(ev.auctionId())) {
+                a.setCurrentPrice(ev.currentPrice());
+                a.setHighestBidderId(ev.highestBidderId());
+                a.setStatus(ev.status());
+                a.setEndTime(ev.endTime());
+                auctionTable.refresh();
+                return;
+            }
+        }
     }
     @FXML private void handleSearch() {
         String keyword = searchField.getText().trim().toLowerCase(Locale.ROOT);

@@ -10,12 +10,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import vn.edu.auction.shared.dto.ItemResponse;
 import vn.edu.auction.shared.enums.ItemStatus;
+import vn.edu.auction.client.api.*;
 
 import java.math.BigDecimal;
 import java.util.Locale;
 
+
 public class ItemListController {
 
+
+    private final ItemApiClient itemApi = new ItemApiClient();
     @FXML
     private TableView<ItemResponse> itemTable;
 
@@ -104,6 +108,14 @@ public class ItemListController {
         } else {
             showMessage("");
         }
+            showMessage("Đang tải sản phẩm...");
+            FxAsync.run(itemApi::getAllItems,
+                    items -> {
+                        allItems.setAll(items);
+                        itemTable.setItems(allItems);
+                        showMessage(items.isEmpty() ? "Không có sản phẩm." : "");
+                    },
+                    err -> showMessage(BaseApiClient.describe(err)));
     }
 
     @FXML
