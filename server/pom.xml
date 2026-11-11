@@ -16,19 +16,35 @@
     <artifactId>server</artifactId>
 
     <dependencies>
-    <!-- Xây dựng ứng dụng server và REST API -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        <version>3.5.6</version>
-    </dependency>
+        <!-- Xây dựng ứng dụng server và REST API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-    <!-- Cho phép server sử dụng các lớp chung trong module shared -->
-    <dependency>
-        <groupId>vn.edu.auction</groupId>
-        <artifactId>shared</artifactId>
-        <version>${project.version}</version>
-    </dependency>
+        <!-- Cho phép server sử dụng các lớp chung trong module shared -->
+        <dependency>
+            <groupId>vn.edu.auction</groupId>
+            <artifactId>shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
