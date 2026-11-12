@@ -17,15 +17,21 @@ public class AuctionService {
     private final ItemRepository items;
     private final AuctionUserService users;
     private final Clock clock;
+    private final SocialService social;
 
-    public AuctionService(AuctionRepository auctions, ItemRepository items, AuctionUserService users, Clock auctionClock) {
+    public AuctionService(AuctionRepository auctions, ItemRepository items, AuctionUserService users,
+                          Clock auctionClock, SocialService social) {
         this.auctions = auctions;
         this.items = items;
         this.users = users;
         this.clock = auctionClock;
+        this.social = social;
     }
 
-    public List<AuctionResponse> getAllAuctions() { return auctions.findAll().stream().map(this::response).toList(); }
+    public List<AuctionResponse> getAllAuctions() {
+        // phiên bị admin ẩn thì không hiện trong danh sách
+        return auctions.findAll().stream().filter(a -> !a.isHidden()).map(this::response).toList();
+    }
 
     public AuctionResponse getAuctionById(Long id) {
         AuctionEntity auction = auctions.findById(id).orElse(null);
@@ -41,6 +47,8 @@ public class AuctionService {
         ItemEntity item = items.findByIdForUpdate(request.getItemId()).orElse(null);
         AuctionRules.require(item != null && item.getStatus() != ItemStatus.REMOVED, HttpStatus.NOT_FOUND, "Khong tim thay san pham.");
         AuctionRules.require(item.getSellerId().equals(sellerId), HttpStatus.FORBIDDEN, "Ban khong so huu san pham nay.");
+        AuctionRules.require(item.getStatus() == ItemStatus.ACTIVE, HttpStatus.CONFLICT,
+                "San pham chua duoc quan tri vien phe duyet.");
         AuctionRules.require(!auctions.existsByItemId(item.getId()), HttpStatus.CONFLICT, "San pham da co phien dau gia.");
         LocalDateTime now = LocalDateTime.now(clock);
         AuctionRules.require(request.getEndTime().isAfter(now) && request.getEndTime().isAfter(request.getStartTime()),
@@ -51,8 +59,9 @@ public class AuctionService {
         auction.setStartTime(request.getStartTime());
         auction.setEndTime(request.getEndTime());
         auction.setStatus(request.getStartTime().isAfter(now) ? AuctionStatus.OPEN : AuctionStatus.RUNNING);
-        item.setStatus(ItemStatus.ACTIVE);
-        return response(auctions.save(auction));
+        AuctionEntity saved = auctions.save(auction);
+        social.onNewAuction(saved, item); // báo cho người đang follow người bán
+        return response(saved);
     }
 
     private AuctionResponse response(AuctionEntity auction) {

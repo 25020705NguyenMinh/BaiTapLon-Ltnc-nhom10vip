@@ -1,0 +1,98 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.auction.client.auction.AuctionDetailController"
+      spacing="18"
+      styleClass="auction-page">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <Label text="CHI TIẾT PHIÊN ĐẤU GIÁ"
+           styleClass="page-title"/>
+
+    <VBox spacing="10" styleClass="auction-card">
+        <Label text="Thông tin sản phẩm" styleClass="section-title"/>
+
+        <Label fx:id="itemNameLabel"
+               text="Tên sản phẩm"
+               styleClass="item-name"/>
+
+        <Label fx:id="descriptionLabel"
+               text="Mô tả sản phẩm"
+               wrapText="true"
+               styleClass="description"/>
+    </VBox>
+
+    <VBox spacing="12" styleClass="auction-card">
+        <Label text="Thông tin đấu giá" styleClass="section-title"/>
+
+        <HBox spacing="10">
+            <Label text="Giá khởi điểm:"/>
+            <Label fx:id="startingPriceLabel" text="0 VNĐ"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Giá hiện tại:"/>
+            <Label fx:id="currentPriceLabel"
+                   text="0 VNĐ"
+                   styleClass="current-price"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Bắt đầu:"/>
+            <Label fx:id="startTimeLabel" text=""/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Kết thúc:"/>
+            <Label fx:id="endTimeLabel" text=""/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Trạng thái:"/>
+            <Label fx:id="statusLabel" text=""/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="12" styleClass="auction-card">
+        <Label text="Đặt giá" styleClass="section-title"/>
+
+        <TextField fx:id="bidAmountField"
+                   promptText="Nhập số tiền muốn đặt (VD: 20000000)"/>
+
+        <Button text="ĐẶT GIÁ"
+                onAction="#handlePlaceBid"
+                styleClass="primary-button"
+                maxWidth="Infinity"/>
+
+        <Label fx:id="messageLabel"
+               text=""
+               wrapText="true"
+               styleClass="message-label"/>
+    </VBox>
+
+    <Separator/>
+
+    <HBox spacing="12">
+        <Button text="Xem lịch sử đặt giá"
+                onAction="#handleViewBidHistory"
+                styleClass="secondary-button"/>
+
+        <Button text="Xem kết quả"
+                onAction="#handleViewResult"
+                styleClass="secondary-button"/>
+    </HBox>
+
+</VBox>

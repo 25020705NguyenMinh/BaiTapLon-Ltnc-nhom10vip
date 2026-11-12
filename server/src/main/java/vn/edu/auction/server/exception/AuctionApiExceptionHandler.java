@@ -10,7 +10,8 @@ import vn.edu.auction.server.controller.*;
 import vn.edu.auction.shared.dto.ApiErrorResponse;
 
 @Order(-1)
-@RestControllerAdvice(assignableTypes = {ItemController.class, AuctionController.class, BidController.class})
+@RestControllerAdvice(assignableTypes = {ItemController.class, AuctionController.class, BidController.class,
+        AccountController.class, SocialController.class, AdminController.class})
 public class AuctionApiExceptionHandler {
     @ExceptionHandler(AuctionBusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(AuctionBusinessException ex, HttpServletRequest request) {

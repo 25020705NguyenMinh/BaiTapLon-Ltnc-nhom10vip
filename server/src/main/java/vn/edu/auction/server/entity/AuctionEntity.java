@@ -1,5 +1,6 @@
 package vn.edu.auction.server.entity;
 
+import org.hibernate.annotations.ColumnDefault;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,10 @@ public class AuctionEntity {
     @Column(name = "status", nullable = false)
     private AuctionStatus status;
 
+    @ColumnDefault("false")
+    @Column(name = "hidden", nullable = false)
+    private boolean hidden = false;
+
     public AuctionEntity() {}
 
     public Long getId() { return id; }
@@ -48,4 +53,7 @@ public class AuctionEntity {
 
     public AuctionStatus getStatus() { return status; }
     public void setStatus(AuctionStatus status) { this.status = status; }
+
+    public boolean isHidden() { return hidden; }
+    public void setHidden(boolean hidden) { this.hidden = hidden; }
 }

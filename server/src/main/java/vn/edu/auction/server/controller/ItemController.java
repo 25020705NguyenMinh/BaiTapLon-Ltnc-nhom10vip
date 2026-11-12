@@ -15,7 +15,9 @@ public class ItemController {
     public ItemController(ItemService items) { this.items = items; }
 
     @GetMapping
-    public List<ItemResponse> getAllItems() { return items.getAllItems(); }
+    public List<ItemResponse> getAllItems(Authentication auth) {
+        return items.getAllItems(AuctionPrincipal.userId(auth));
+    }
 
     @GetMapping("/{id}")
     public ItemResponse getItemById(@PathVariable("id") Long id) { return items.getItemById(id); }

@@ -26,7 +26,8 @@
             <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
             <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Tên sản phẩm" />
             <TableColumn fx:id="descriptionColumn" prefWidth="350.0" text="Mô tả chi tiết" />
-            <TableColumn fx:id="priceColumn" prefWidth="150.0" text="Giá khởi điểm (VNĐ)" />
+            <TableColumn fx:id="priceColumn" prefWidth="130.0" text="Giá khởi điểm" />
+            <TableColumn fx:id="statusColumn" prefWidth="110.0" text="Trạng thái" />
         </columns>
     </TableView>
 
@@ -58,6 +59,7 @@
         <Button onAction="#handleUpdateItem" prefWidth="100.0" styleClass="primary-button" text="Cập Nhật" />
         <Button onAction="#handleDeleteItem" prefWidth="100.0" styleClass="danger-button" text="Xóa" />
         <Button onAction="#clearForm" prefWidth="100.0" text="Xóa Form" />
+        <Button onAction="#handleCreateAuction" styleClass="primary-button" text="Tạo phiên đấu giá" />
     </HBox>
 
     <!-- Thông báo trạng thái -->

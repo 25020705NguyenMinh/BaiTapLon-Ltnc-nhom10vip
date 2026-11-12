@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.auction.client.auction.AuctionResultController"
+      spacing="20"
+      stylesheets="@../../css/auction.css"
+      styleClass="auction-page">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <Label text="KẾT QUẢ ĐẤU GIÁ"
+           styleClass="page-title"/>
+
+    <VBox spacing="15" styleClass="auction-card">
+        <Label text="Thông tin kết quả" styleClass="section-title"/>
+
+        <HBox spacing="10">
+            <Label text="Sản phẩm:" prefWidth="120"/>
+            <Label fx:id="itemNameLabel" text="Tên sản phẩm" styleClass="item-name"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Trạng thái:" prefWidth="120"/>
+            <Label fx:id="auctionStatusLabel" text="COMPLETED" styleClass="result-status"/>
+        </HBox>
+
+        <Separator/>
+
+        <HBox spacing="10">
+            <Label text="Người thắng:" prefWidth="120"/>
+            <Label fx:id="winnerLabel" text="Chưa có" styleClass="winner-name"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Giá cuối cùng:" prefWidth="120"/>
+            <Label fx:id="finalPriceLabel" text="0 VNĐ" styleClass="current-price"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Thời gian đóng:" prefWidth="120"/>
+            <Label fx:id="endTimeLabel" text=""/>
+        </HBox>
+    </VBox>
+
+    <Button text="← Quay lại chi tiết đấu giá"
+            onAction="#handleBackToDetail"
+            styleClass="secondary-button"/>
+
+</VBox>

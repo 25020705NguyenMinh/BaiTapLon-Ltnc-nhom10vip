@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
@@ -19,28 +20,26 @@ import vn.edu.auction.client.navigation.Navigator;
 public class BrowseController {
     private static Runnable refreshCurrent = () -> {};
     public static void refreshCurrentAccount() { refreshCurrent.run(); }
-    @FXML private Button accountButton;
     @FXML private Button manageButton;
-    @FXML private Label accountLabel;
+    @FXML private HBox userArea;
     @FXML private void initialize() { refreshCurrent = this::refreshAccount; refreshAccount(); }
+    private Boolean lastLoggedIn;
     private void refreshAccount() {
-        SessionData session = SessionData.getInstance();
-        accountLabel.setText(session.isLoggedIn() ? "Xin chào, " + session.getFullName() : "Bạn đang xem với tư cách khách");
-        accountButton.setText(session.isLoggedIn() ? "Đăng xuất" : "Đăng nhập");
-        manageButton.setVisible(session.isLoggedIn());
-        manageButton.setManaged(session.isLoggedIn());
+        boolean in = SessionData.getInstance().isLoggedIn();
+        boolean changed = lastLoggedIn != null && lastLoggedIn != in;
+        lastLoggedIn = in;
+        manageButton.setVisible(in);
+        manageButton.setManaged(in);
+        // Ô user góc phải: Đăng nhập / chuông / chat / menu (Ví, Tài khoản, Quản trị, Đăng xuất)
+        vn.edu.auction.client.ui.UserArea.render(userArea, this::refreshAccount);
+        if (changed) { // đăng nhập / đăng xuất => tải lại dữ liệu thật
+            AuctionListController.reload();
+            ItemListController.reload();
+        }
     }
     @FXML private void handleManageItems() {
         if (!SessionData.getInstance().isLoggedIn()) return;
         NavigationController.showView("/vn/edu/auction/client/fxml/item-management-view.fxml", "Quản lý sản phẩm");
-    }
-    @FXML private void handleAccount() {
-        if (SessionData.getInstance().isLoggedIn()) {
-            SessionData.getInstance().clearSession();
-            refreshAccount();
-        } else {
-            openLogin((Stage) accountButton.getScene().getWindow(), this::refreshAccount);
-        }
     }
     public static void openLogin(Stage owner, Runnable onClose) {
         try {

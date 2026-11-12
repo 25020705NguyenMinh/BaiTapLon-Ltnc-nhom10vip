@@ -26,6 +26,14 @@ public class ItemService {
         return items.findAll().stream().filter(i -> i.getStatus() != ItemStatus.REMOVED).map(this::response).toList();
     }
 
+    /** Danh sách cho người xem cụ thể: sản phẩm chờ duyệt (DRAFT) chỉ chủ sở hữu mới thấy. */
+    public List<ItemResponse> getAllItems(Long viewerId) {
+        return items.findAll().stream()
+                .filter(i -> i.getStatus() != ItemStatus.REMOVED
+                        && (i.getStatus() != ItemStatus.DRAFT || i.getSellerId().equals(viewerId)))
+                .map(this::response).toList();
+    }
+
     public ItemResponse getItemById(Long id) { return response(findItem(id)); }
 
     @Transactional

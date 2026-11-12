@@ -17,7 +17,9 @@ public class AuctionUserService {
         UserEntity user = users.findById(userId).orElse(null);
         AuctionRules.require(user != null && user.getStatus() == UserStatus.ACTIVE,
                 HttpStatus.FORBIDDEN, "Tai khoan khong hoat dong.");
-        AuctionRules.require(user.getRole() == role, HttpStatus.FORBIDDEN, "Tai khoan khong co quyen thuc hien.");
+        boolean tradingRole = (role == UserRole.BIDDER || role == UserRole.SELLER)
+                && (user.getRole() == UserRole.BIDDER || user.getRole() == UserRole.SELLER);
+        AuctionRules.require(user.getRole() == role || tradingRole, HttpStatus.FORBIDDEN, "Tai khoan khong co quyen thuc hien.");
         return user;
     }
 }

@@ -49,14 +49,25 @@
         <!-- Spring Security: bảo vệ API + BCrypt -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Database H2 (dev). Sau này đổi MySQL/PostgreSQL chỉ cần đổi driver + url -->
+        <!-- Database MySQL (chạy thật). Hibernate tự nhận dialect từ driver -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- H2 chỉ còn dùng cho test tự động (P3BackendTest chạy H2 in-memory) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!-- JWT -->
@@ -111,6 +122,13 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <configuration><mainClass>vn.edu.auction.server.MainApplication</mainClass></configuration>
+                <executions><execution><goals><goal>repackage</goal></goals></execution></executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

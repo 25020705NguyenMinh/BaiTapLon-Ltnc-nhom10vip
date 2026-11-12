@@ -2,7 +2,9 @@ package vn.edu.auction.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @SpringBootApplication //khai bao đây là file thuộc controller để tiếp nhân request và xử lý request
 public class MainApplication {
 

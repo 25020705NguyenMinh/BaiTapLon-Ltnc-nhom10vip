@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="vn.edu.auction.client.auction.BidHistoryController"
+      spacing="20"
+      styleClass="auction-page">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <Label text="LỊCH SỬ ĐẶT GIÁ"
+           styleClass="page-title"/>
+
+    <VBox spacing="12" styleClass="auction-card">
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Các lượt trả giá"
+                   styleClass="section-title"/>
+
+            <Label fx:id="totalBidsLabel"
+                   text="Tổng số lượt đặt giá: 0"
+                   styleClass="bid-secondary"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Tiêu đề các cột -->
+        <HBox spacing="15" styleClass="bid-header">
+            <Label text="Người đặt giá" prefWidth="170"/>
+            <Label text="Số tiền" prefWidth="170"/>
+            <Label text="Thời gian" prefWidth="220"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Danh sách lượt đặt giá được tạo từ Controller -->
+        <VBox fx:id="bidListContainer"
+              spacing="10"/>
+
+        <Label fx:id="emptyMessageLabel"
+               text="Chưa có lượt đặt giá nào."
+               visible="false"
+               managed="false"
+               styleClass="empty-message"/>
+    </VBox>
+
+    <Button text="← Quay lại chi tiết đấu giá"
+            onAction="#handleBack"
+            styleClass="secondary-button"/>
+
+</VBox>

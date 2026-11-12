@@ -12,4 +12,6 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select i from ItemEntity i where i.id = :id")
     Optional<ItemEntity> findByIdForUpdate(@Param("id") Long id);
+
+    java.util.List<ItemEntity> findByStatus(vn.edu.auction.shared.enums.ItemStatus status);
 }

@@ -1,88 +1,57 @@
 # TECH AUCTION
 
-TECH AUCTION là ứng dụng đấu giá trực tuyến dành cho người mua và người bán. Người dùng có thể khám phá sản phẩm, theo dõi phiên đấu giá và xem lịch sử giá.
+Ứng dụng đấu giá của nhóm 10: **JavaFX** (client), **Spring Boot** (server), **MySQL** (database), module `shared` chứa DTO và enum dùng chung. Cần **JDK 21+** và **Maven 3.9+**.
 
-Dự án dùng JavaFX cho giao diện và Spring Boot cho backend, gồm ba module: `client`, `server` và `shared`.
+## Chạy lần đầu trên Windows
 
-## Tính năng hiện có
+1. Cài và cấu hình MySQL theo [hướng dẫn từng bước](docs/MYSQL.md). Tạo database `auction` và tài khoản `auction_app`.
+2. Chép `config/application-local.example.properties` thành `config/application-local.properties`, điền mật khẩu MySQL của bạn.
+3. Mở PowerShell tại thư mục gốc của repo (nơi có `pom.xml`), chạy:
 
-- Giao diện khám phá sản phẩm, danh sách và chi tiết phiên đấu giá.
-- Giao diện đăng ký, đăng nhập và xác minh OTP.
-- Biểu đồ lịch sử đặt giá trong cửa sổ chi tiết.
-- Backend quản lý sản phẩm, tạo phiên, đặt giá và lưu lịch sử.
-- Xử lý đặt giá đồng thời và gia hạn 60 giây khi có lượt đặt giá hợp lệ trong 10 giây cuối.
-
-Một số màn hình và biểu đồ còn dùng dữ liệu mẫu; giao diện chưa kết nối đầy đủ với dữ liệu thật.
-
-## Yêu cầu
-
-- JDK 21
-- Maven 3.9 trở lên
-- Git
-
-Kiểm tra cài đặt:
-
-```bash
-java -version
-mvn -version
-```
-
-## Lấy mã nguồn `main`
-
-Lần đầu tải dự án:
-
-```bash
-git clone https://github.com/25020705NguyenMinh/BaiTapLon-Ltnc-nhom10vip.git
-cd BaiTapLon-Ltnc-nhom10vip
-```
-
-Nếu đã clone từ trước, cập nhật mã mới nhất của `main`:
-
-```bash
-git switch main
-git pull --ff-only origin main
-```
-
-## Build và kiểm thử
-
-Chạy từ thư mục gốc, nơi có `pom.xml`:
-
-```bash
+```powershell
 mvn clean install
+java -jar server/target/server-1.0-SNAPSHOT.jar
 ```
 
-Lệnh này build cả ba module và chạy các bài test. Chỉ chạy test lại:
+Giữ cửa sổ server mở. Mở **PowerShell thứ hai**, cũng tại thư mục gốc:
 
-```bash
-mvn test
-```
-
-## Chạy ứng dụng
-
-Cần mở hai terminal ở thư mục gốc dự án để chạy backend và giao diện cùng lúc.
-
-**Terminal 1 — backend:**
-
-```bash
-mvn -pl server org.springframework.boot:spring-boot-maven-plugin:3.5.6:run
-```
-
-Server chạy tại `http://localhost:8080`. Database H2 được lưu local ở `data/auction`.
-
-**Terminal 2 — giao diện JavaFX:**
-
-```bash
+```powershell
 mvn -pl client javafx:run
 ```
 
-Giao diện mở cửa sổ `Sàn đấu giá | Khám phá`.
+Server mặc định ở `http://localhost:8080`; kiểm tra bằng trình duyệt: `http://localhost:8080/api/health`.
+Nếu dùng JDK 26, bytecode vẫn được biên dịch theo Java 21. Có thể dùng JDK 21 để đồng nhất môi trường của nhóm.
 
-Để kiểm tra server, mở `http://localhost:8080/api/health` trên trình duyệt. Nếu server yêu cầu cấu hình email, hãy đặt biến môi trường `MAIL_PASSWORD` trước khi chạy backend. Để gửi OTP thật qua Gmail, giá trị này cần là App Password của tài khoản gửi mail; không đưa mật khẩu vào Git.
+## Thử luồng chính
 
-## Chức năng dự kiến bổ sung
+- Đăng ký, xem mã OTP trong **console server** rồi xác minh và đăng nhập. Nếu bật profile `mail`, OTP gửi qua SMTP thay cho console.
+- Khi đăng ký có thể chọn vai trò `BIDDER` hoặc `SELLER`; `ADMIN` được tạo riêng. Cả hai vai trò thường được đăng bán lẫn đặt giá, nhưng không được tự bid sản phẩm của mình.
+- Thêm sản phẩm → admin duyệt → người bán tạo phiên → tài khoản khác đặt giá.
+- Giá, lịch sử, biểu đồ nhận cập nhật realtime. Khi hết hạn, server chọn người thắng từ lượt bid đã lưu.
+- Bid hợp lệ trong 10 giây cuối gia hạn thêm 60 giây, có thể lặp nhiều lần.
 
-- Kết nối các màn hình với backend để thêm, sửa, xóa sản phẩm và đặt giá trực tiếp.
-- Cập nhật giá và biểu đồ khi có lượt đặt giá mới.
-- Tự kết thúc phiên và hiển thị người thắng.
-- Hoàn thiện cấu hình email, đăng nhập Google và database MySQL.
-- Tiếp tục kiểm thử và cải thiện trải nghiệm sử dụng.
+Tạo admin đầu tiên: đăng ký và xác minh một tài khoản, rồi chạy trong MySQL (đổi email):
+
+```sql
+UPDATE auction.users SET role = 'ADMIN' WHERE email = 'email-cua-ban@example.com' AND status = 'ACTIVE';
+```
+
+Đăng nhập lại để giao diện nhận vai trò admin. Sau đó mở menu tài khoản → Trang quản trị để duyệt sản phẩm.
+
+## Kiểm thử
+
+```powershell
+mvn test
+```
+
+Test tự động dùng H2 riêng, **không cần MySQL và không tác động database app**. Có test transaction/rollback, quyền, gia hạn, đóng phiên và 100 lượt đặt giá đồng thời.
+
+## Cấu hình tùy chọn
+
+- MySQL local: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; hoặc `DB_URL` là URL JDBC đầy đủ.
+- Railway: xem [phần cloud](docs/MYSQL.md#mysql-cloud-railway). Chỉ server giữ thông tin MySQL; client gọi API server.
+- SMTP: bật `SPRING_PROFILES_ACTIVE=mail`, điền `MAIL_USER`, `MAIL_PASSWORD`, tùy chọn `MAIL_HOST`, `MAIL_PORT`.
+- Google: bật profile `google`, điền `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`. Nếu dùng cả mail và Google: `SPRING_PROFILES_ACTIVE=mail,google`.
+- Khi dùng ngoài máy cá nhân, đặt `JWT_SECRET` ngẫu nhiên dài ít nhất 32 ký tự.
+
+Không commit file cấu hình chứa mật khẩu. Thông tin bí mật từng đưa lên GitHub cần đổi/thu hồi tại dịch vụ tương ứng; xóa khỏi file hiện tại không xóa lịch sử Git.

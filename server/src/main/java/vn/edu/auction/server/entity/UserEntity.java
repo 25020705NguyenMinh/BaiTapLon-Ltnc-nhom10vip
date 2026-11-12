@@ -1,6 +1,8 @@
 package vn.edu.auction.server.entity;
 
+import java.math.BigDecimal;
 import jakarta.persistence.Column;
+import org.hibernate.annotations.ColumnDefault;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,6 +38,16 @@ public class UserEntity {
     @Column(name = "status", nullable = false, length = 20)
     private UserStatus status;
 
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "address", length = 255)
+    private String address;
+
+    @ColumnDefault("0")
+    @Column(name = "wallet_balance", nullable = false, precision = 19, scale = 2)
+    private BigDecimal walletBalance = BigDecimal.ZERO;
+
     // JPA bắt buộc phải có constructor không tham số
     public UserEntity() {
     }
@@ -61,4 +73,11 @@ public class UserEntity {
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public void setRole(UserRole role) { this.role = role; }
     public void setStatus(UserStatus status) { this.status = status; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+    public BigDecimal getWalletBalance() { return walletBalance; }
+    public void setWalletBalance(BigDecimal walletBalance) { this.walletBalance = walletBalance; }
 }

@@ -20,6 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import vn.edu.auction.server.security.JwtAuthenticationFilter;
 import vn.edu.auction.server.security.JwtService;
+import vn.edu.auction.server.repository.UserRepository;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.beans.factory.ObjectProvider;
 import vn.edu.auction.shared.dto.ApiErrorResponse;
 
 import java.io.IOException;
@@ -44,7 +47,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtService jwtService,
-                                                   ObjectMapper objectMapper) throws Exception {
+                                                   ObjectMapper objectMapper,
+                                                   UserRepository users,
+                                                   ObjectProvider<ClientRegistrationRepository> registrations) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -63,12 +68,8 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/oauth2/**"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        // Chỉ định endpoint kích hoạt login thay vì /login mặc định
-                        .loginPage("/oauth2/authorization/google")
-                        .defaultSuccessUrl("/api/auth/oauth2/success", true)
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, e) -> writeError(
@@ -77,9 +78,14 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, e) -> writeError(
                                 objectMapper, request, response, HttpStatus.FORBIDDEN,
                                 "Bạn không có quyền truy cập")))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, users),
                         UsernamePasswordAuthenticationFilter.class);
 
+        if (registrations.getIfAvailable() != null) {
+            http.oauth2Login(oauth2 -> oauth2
+                    .loginPage("/oauth2/authorization/google")
+                    .defaultSuccessUrl("/api/auth/oauth2/success", true));
+        }
         return http.build();
     }
 

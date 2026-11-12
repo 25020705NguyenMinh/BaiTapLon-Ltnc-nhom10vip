@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import vn.edu.auction.client.I18n;
 import vn.edu.auction.client.api.AuthApiClient;
 import vn.edu.auction.client.controller.NavigationController;
@@ -72,6 +73,7 @@ public class AuthController {
 
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
+    @FXML private ComboBox<UserRole> roleComboBox;
     @FXML private Label firstNameError;
     @FXML private Label lastNameError;
 
@@ -131,6 +133,16 @@ public class AuthController {
         }
 
         setupLanguageComboBox();
+        if (roleComboBox != null) {
+            roleComboBox.getItems().setAll(UserRole.BIDDER, UserRole.SELLER);
+            roleComboBox.setConverter(new StringConverter<>() {
+                @Override public String toString(UserRole role) {
+                    return role == null ? "" : I18n.get("role." + role.name());
+                }
+                @Override public UserRole fromString(String value) { return null; }
+            });
+            roleComboBox.setValue(parseRole(RegisterData.role));
+        }
 
         if (emailField != null) {
             emailField.setText(RegisterData.email);
@@ -401,13 +413,16 @@ public class AuthController {
 
         String fullName = firstNameField.getText().trim() + " " + lastNameField.getText().trim();
         String email = RegisterData.email.trim();
+        UserRole selectedRole = roleComboBox == null || roleComboBox.getValue() == null
+                ? UserRole.BIDDER : roleComboBox.getValue();
+        RegisterData.role = selectedRole.name();
 
         // Dùng đúng RegisterRequest trong module shared để gửi cho server.
         RegisterRequest request = new RegisterRequest(
                 fullName,
                 email,
                 passwordField.getText(),
-                parseRole(RegisterData.role));
+                selectedRole);
 
         runAsync(() -> AUTH_API.register(request), response -> onRegisterSuccess(email));
     }

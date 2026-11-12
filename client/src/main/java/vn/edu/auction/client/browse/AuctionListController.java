@@ -3,17 +3,29 @@ package vn.edu.auction.client.browse;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import vn.edu.auction.client.api.AuctionApiClient;
+import vn.edu.auction.client.api.AuctionRealtimeClient;
+import vn.edu.auction.client.api.BaseApiClient;
+import vn.edu.auction.client.api.BidApiClient;
+import vn.edu.auction.client.api.FxAsync;
 import vn.edu.auction.client.model.SessionData;
+import vn.edu.auction.client.ui.BidHistoryChart;
+import vn.edu.auction.client.ui.UiKit;
+import vn.edu.auction.client.ui.WatchBar;
 import vn.edu.auction.shared.dto.AuctionResponse;
+import vn.edu.auction.shared.dto.BidResponse;
+import vn.edu.auction.shared.dto.PlaceBidRequest;
 import vn.edu.auction.shared.enums.AuctionStatus;
 
 public class AuctionListController {
@@ -25,7 +37,13 @@ public class AuctionListController {
     @FXML private TextField searchField;
     @FXML private Label messageLabel;
     private final ObservableList<AuctionResponse> auctions = FXCollections.observableArrayList();
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm");
+    private final AuctionApiClient auctionApi = new AuctionApiClient();
+    private final BidApiClient bidApi = new BidApiClient();
+    private static Runnable reloadHook = () -> { };
+    private Runnable unsubscribe;
+
+    /** Được BrowseController gọi khi đăng nhập / đăng xuất. */
+    public static void reload() { reloadHook.run(); }
 
     @FXML private void initialize() {
         auctionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -40,7 +58,7 @@ public class AuctionListController {
         });
         endTimeColumn.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(LocalDateTime value, boolean empty) {
-                super.updateItem(value, empty); setText(empty || value == null ? null : DATE.format(value));
+                super.updateItem(value, empty); setText(empty || value == null ? null : UiKit.dt(value));
             }
         });
         statusColumn.setCellFactory(col -> new TableCell<>() {
@@ -53,25 +71,50 @@ public class AuctionListController {
             row.setOnMouseClicked(event -> { if (event.getClickCount() == 2 && !row.isEmpty()) handleOpenAuction(); });
             return row;
         });
+        // Realtime: có bid mới / phiên kết thúc thì cập nhật đúng dòng, không cần tải lại
+        unsubscribe = AuctionRealtimeClient.getInstance().subscribe(this::onAuctionEvent);
+        auctionTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null && unsubscribe != null) { unsubscribe.run(); unsubscribe = null; }
+        });
         loadAuctions();
     }
+
     public void loadAuctions() {
-        LocalDateTime now = LocalDateTime.now();
-        auctions.setAll(
-            new AuctionResponse(1L, 1L, "Laptop Dell XPS 13", new BigDecimal("18000000"), new BigDecimal("19500000"), 201L, now.minusHours(1), now.plusHours(3), AuctionStatus.RUNNING),
-            new AuctionResponse(2L, 2L, "iPhone 15", new BigDecimal("15000000"), new BigDecimal("15000000"), null, now.plusHours(1), now.plusHours(6), AuctionStatus.OPEN),
-            new AuctionResponse(3L, 3L, "Máy ảnh Sony", new BigDecimal("12000000"), new BigDecimal("13200000"), 203L, now.minusHours(2), now.plusDays(1), AuctionStatus.RUNNING)
-        );
+        reloadHook = this::loadAuctions;
         auctionTable.setItems(auctions);
         auctionTable.setPlaceholder(new Label("Chưa có phiên đấu giá nào."));
-        showMessage(auctions.isEmpty() ? "Không có phiên đấu giá." : "");
+        if (!SessionData.getInstance().isLoggedIn()) {
+            auctions.clear();
+            showMessage("Vui lòng đăng nhập để xem các phiên đấu giá.");
+            return;
+        }
+        showMessage("Đang tải phiên đấu giá...");
+        FxAsync.run(auctionApi::getAllAuctions, list -> {
+            auctions.setAll(list);
+            showMessage(list.isEmpty() ? "Không có phiên đấu giá." : "");
+        }, err -> showMessage(BaseApiClient.describe(err)));
     }
+
+    private void onAuctionEvent(AuctionRealtimeClient.Event ev) {
+        for (AuctionResponse a : auctions) {
+            if (a.getId().equals(ev.auctionId())) {
+                a.setCurrentPrice(ev.currentPrice());
+                a.setHighestBidderId(ev.highestBidderId());
+                a.setStatus(ev.status());
+                a.setEndTime(ev.endTime());
+                auctionTable.refresh();
+                return;
+            }
+        }
+    }
+
     @FXML private void handleSearch() {
         String keyword = searchField.getText().trim().toLowerCase(Locale.ROOT);
         ObservableList<AuctionResponse> result = auctions.filtered(a -> a.getItemName() != null && a.getItemName().toLowerCase(Locale.ROOT).contains(keyword));
         auctionTable.setItems(result);
         showMessage(result.isEmpty() ? "Không tìm thấy phiên phù hợp." : "");
     }
+
     @FXML private void handleOpenAuction() {
         AuctionResponse selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected == null) { showMessage("Hãy chọn một phiên đấu giá trước."); return; }
@@ -80,23 +123,80 @@ public class AuctionListController {
         detail.initOwner(auctionTable.getScene().getWindow());
         detail.setTitle("Chi tiết phiên đấu giá");
         detail.setHeaderText(selected.getItemName());
-        Label id = new Label("PHIÊN #" + selected.getId() + "   •   " + status(selected.getStatus()));
+
+        Label id = new Label();
         id.getStyleClass().add("badge");
         Label caption = new Label("GIÁ HIỆN TẠI");
         caption.getStyleClass().add("detail-caption");
-        Label price = new Label(money(selected.getCurrentPrice()));
+        Label price = new Label();
         price.getStyleClass().add("detail-price");
         VBox priceBlock = new VBox(4, caption, price);
         Label starting = new Label("Giá khởi điểm    " + money(selected.getStartingPrice()));
-        Label end = new Label("Kết thúc              " + DATE.format(selected.getEndTime()));
-        VBox metadata = new VBox(10, starting, end);
+        Label leader = new Label();
+        Label end = new Label();
+        VBox metadata = new VBox(10, starting, leader, end);
         metadata.getStyleClass().add("detail-meta");
-        Label note = new Label("Dữ liệu minh họa. Chức năng đặt giá đang được hoàn thiện.");
+        Label note = new Label();
         note.getStyleClass().add("detail-note");
         note.setWrapText(true);
-        vn.edu.auction.client.ui.BidHistoryChart historyChart = new vn.edu.auction.client.ui.BidHistoryChart(
-                selected.getStartingPrice(), selected.getStartTime(), DemoBidHistory.forAuction(selected), true);
-        VBox content = new VBox(16, id, priceBlock, metadata, historyChart, note);
+        VBox historyHolder = new VBox();
+
+        // Ô đặt giá
+        TextField amountField = new TextField();
+        amountField.setPromptText("Nhập giá bạn muốn đặt (đ)");
+        HBox.setHgrow(amountField, Priority.ALWAYS);
+        Button bidButton = new Button("Đặt giá");
+        bidButton.getStyleClass().add("primary-button");
+        HBox bidRow = new HBox(8, amountField, bidButton);
+        bidRow.setAlignment(Pos.CENTER_LEFT);
+
+        // Hiển thị trạng thái hiện tại của phiên (dùng chung cho dữ liệu ban đầu và event realtime)
+        java.util.function.Consumer<AuctionResponse> render = a -> {
+            id.setText("PHIÊN #" + a.getId() + "   •   " + status(a.getStatus()));
+            price.setText(money(a.getCurrentPrice()));
+            leader.setText("Người dẫn đầu    " + (a.getHighestBidderId() == null ? "—" : "#" + a.getHighestBidderId()));
+            end.setText("Kết thúc              " + UiKit.dt(a.getEndTime()));
+            boolean active = a.getStatus() == AuctionStatus.RUNNING || a.getStatus() == AuctionStatus.OPEN;
+            bidRow.setDisable(!active || !SessionData.getInstance().isLoggedIn());
+            if (!active) note.setText(a.getStatus() == AuctionStatus.CANCELED
+                    ? "Phiên đã bị quản trị viên dừng." : "Phiên đã kết thúc.");
+        };
+        render.accept(selected);
+
+        Runnable loadHistory = () -> FxAsync.run(() -> bidApi.getBidHistory(selected.getId()), (List<BidResponse> list) ->
+                historyHolder.getChildren().setAll(new BidHistoryChart(selected.getStartingPrice(), selected.getStartTime(), list, false)),
+                err -> note.setText(BaseApiClient.describe(err)));
+        if (SessionData.getInstance().isLoggedIn()) loadHistory.run();
+
+        bidButton.setOnAction(e -> {
+            BigDecimal amount;
+            try {
+                amount = new BigDecimal(amountField.getText().trim());
+            } catch (NumberFormatException ex) {
+                note.setText("Số tiền không hợp lệ.");
+                return;
+            }
+            bidButton.setDisable(true);
+            FxAsync.run(() -> bidApi.placeBid(selected.getId(), new PlaceBidRequest(amount)),
+                    res -> { bidButton.setDisable(false); amountField.clear(); note.setText(res.getMessage()); loadHistory.run(); },
+                    err -> { bidButton.setDisable(false); note.setText(BaseApiClient.describe(err)); });
+        });
+
+        // Realtime trong dialog: giá, người dẫn đầu, giờ kết thúc (gia hạn chống sniping), lịch sử bid
+        Runnable unsub = AuctionRealtimeClient.getInstance().subscribe(ev -> {
+            if (!selected.getId().equals(ev.auctionId())) return;
+            selected.setCurrentPrice(ev.currentPrice());
+            selected.setHighestBidderId(ev.highestBidderId());
+            selected.setStatus(ev.status());
+            selected.setEndTime(ev.endTime());
+            render.accept(selected);
+            auctionTable.refresh();
+            loadHistory.run();
+        });
+        detail.setOnHidden(e -> unsub.run());
+
+        VBox content = new VBox(16, id, new WatchBar(selected.getId(), selected.getItemId()),
+                priceBlock, metadata, bidRow, historyHolder, note);
         content.getStyleClass().add("detail-content");
         ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
@@ -106,21 +206,14 @@ public class AuctionListController {
         detail.getDialogPane().setContent(scroll);
         detail.setResizable(true);
         vn.edu.auction.client.ui.UiTheme.apply(detail.getDialogPane());
-        ButtonType participate = new ButtonType("Tham gia đấu giá", ButtonBar.ButtonData.OTHER);
         ButtonType close = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
-        detail.getDialogPane().getButtonTypes().addAll(participate, close);
-        Button button = (Button) detail.getDialogPane().lookupButton(participate);
-        button.getStyleClass().add("primary-button");
-        button.addEventFilter(javafx.event.ActionEvent.ACTION, e -> {
-            e.consume();
-            if (!SessionData.getInstance().isLoggedIn()) {
-                BrowseController.openLogin((Stage) detail.getDialogPane().getScene().getWindow(), BrowseController::refreshCurrentAccount);
-            } else {
-                note.setText("Bạn đã đăng nhập. Chức năng đặt giá thật sẽ được bổ sung ở giai đoạn sau.");
-            }
-        });
+        detail.getDialogPane().getButtonTypes().add(close);
+        if (!SessionData.getInstance().isLoggedIn()) {
+            note.setText("Đăng nhập để đặt giá.");
+        }
         detail.show();
     }
+
     private static String money(BigDecimal value) { return value == null ? "—" : NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN")).format(value) + " đ"; }
     private static String status(AuctionStatus value) {
         if (value == null) return "—";

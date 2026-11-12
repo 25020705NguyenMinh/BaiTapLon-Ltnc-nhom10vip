@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="650.0" prefWidth="800.0" spacing="15.0" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.edu.auction.client.controller.ItemManagementController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <Label styleClass="header-label" text="Quản Lý Sản Phẩm Đấu Giá" />
+
+    <!-- Bảng danh sách sản phẩm -->
+    <TableView fx:id="itemTable" prefHeight="250.0" prefWidth="760.0" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
+            <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Tên sản phẩm" />
+            <TableColumn fx:id="descriptionColumn" prefWidth="350.0" text="Mô tả chi tiết" />
+            <TableColumn fx:id="priceColumn" prefWidth="150.0" text="Giá khởi điểm (VNĐ)" />
+        </columns>
+    </TableView>
+
+    <!-- Form nhập liệu -->
+    <GridPane hgap="15.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="1000.0" minWidth="200.0" />
+        </columnConstraints>
+
+        <Label text="Tên sản phẩm:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="nameField" promptText="Nhập tên sản phẩm..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <Label text="Mô tả:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextArea fx:id="descriptionArea" prefHeight="60.0" promptText="Mô tả tình trạng, thông số..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Giá khởi điểm:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextField fx:id="startingPriceField" promptText="Nhập số tiền..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
+    </GridPane>
+
+    <!-- Nút thao tác Form -->
+    <HBox alignment="CENTER_LEFT" spacing="15.0">
+        <Button onAction="#handleCreateItem" prefWidth="100.0" styleClass="primary-button" text="Thêm Mới" />
+        <Button onAction="#handleUpdateItem" prefWidth="100.0" styleClass="primary-button" text="Cập Nhật" />
+        <Button onAction="#handleDeleteItem" prefWidth="100.0" styleClass="danger-button" text="Xóa" />
+        <Button onAction="#clearForm" prefWidth="100.0" text="Xóa Form" />
+    </HBox>
+
+    <!-- Thông báo trạng thái -->
+    <Label fx:id="messageLabel" styleClass="message-label" text="Sẵn sàng." />
+
+    <!-- Điều hướng -->
+    <HBox alignment="CENTER_RIGHT">
+        <Button onAction="#handleBackToHome" text="Quay lại Trang Chủ" />
+    </HBox>
+</VBox>

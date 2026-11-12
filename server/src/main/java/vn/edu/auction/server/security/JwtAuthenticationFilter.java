@@ -14,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import vn.edu.auction.server.repository.UserRepository;
+import vn.edu.auction.shared.enums.UserStatus;
 
 /**
  * Đọc header "Authorization: Bearer <token>". Token hợp lệ thì đánh dấu request
@@ -23,9 +25,11 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository users;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository users) {
         this.jwtService = jwtService;
+        this.users = users;
     }
 
     @Override
@@ -38,11 +42,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtService.parse(header.substring(7).trim());
                 Long userId = Long.valueOf(claims.getSubject());
-                String role = claims.get("role", String.class);
-
-                var authentication = new UsernamePasswordAuthenticationToken(
-                        userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                var user = users.findById(userId).orElse(null);
+                if (user != null && user.getStatus() == UserStatus.ACTIVE) {
+                    var authentication = new UsernamePasswordAuthenticationToken(
+                            userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    SecurityContextHolder.clearContext();
+                }
             } catch (JwtException | IllegalArgumentException e) {
                 SecurityContextHolder.clearContext();
             }

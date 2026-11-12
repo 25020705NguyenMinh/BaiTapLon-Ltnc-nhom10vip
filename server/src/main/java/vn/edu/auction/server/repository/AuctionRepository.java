@@ -15,4 +15,8 @@ public interface AuctionRepository extends JpaRepository<AuctionEntity, Long> {
 
     boolean existsByItemId(Long itemId);
     List<AuctionEntity> findByStatus(AuctionStatus status);
+
+    @Query("select a.id from AuctionEntity a where a.status in :statuses and a.endTime <= :now")
+    List<Long> findExpiredIds(@Param("statuses") java.util.Collection<AuctionStatus> statuses,
+                              @Param("now") java.time.LocalDateTime now);
 }

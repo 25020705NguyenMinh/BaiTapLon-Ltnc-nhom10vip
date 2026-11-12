@@ -21,7 +21,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import vn.edu.auction.server.config.SecurityConfig;
 import vn.edu.auction.server.controller.*;
 import vn.edu.auction.server.entity.*;
+import vn.edu.auction.server.event.AuctionEventPublisher;
 import vn.edu.auction.server.event.BidAcceptedEvent;
+import vn.edu.auction.server.event.UserSocketHandler;
 import vn.edu.auction.server.exception.*;
 import vn.edu.auction.server.repository.*;
 import vn.edu.auction.server.security.JwtService;
@@ -48,6 +50,7 @@ class P3BackendTest {
     @EntityScan("vn.edu.auction.server.entity")
     @EnableJpaRepositories("vn.edu.auction.server.repository")
     @Import({ItemService.class, AuctionService.class, BidService.class, AuctionUserService.class,
+            SocialService.class, UserSocketHandler.class, AuctionEventPublisher.class, AuctionClosingService.class,
             ItemController.class, AuctionController.class, BidController.class,
             AuctionApiExceptionHandler.class, GlobalExceptionHandler.class, SecurityConfig.class, JwtService.class})
     static class TestApp {
@@ -79,6 +82,7 @@ class P3BackendTest {
     @Autowired MutableClock clock;
     @Autowired EventCollector collector;
     @Autowired PlatformTransactionManager transactionManager;
+    @Autowired AuctionClosingService closing;
     @Autowired MockMvc mvc;
     @Autowired JwtService jwt;
     Long seller;
@@ -101,8 +105,16 @@ class P3BackendTest {
         return users.save(new UserEntity(name, name + "@test.local", "hash", role, UserStatus.ACTIVE)).getId();
     }
 
+    /** Admin phê duyệt: DRAFT -> ACTIVE (createAuction chỉ nhận sản phẩm đã duyệt). */
+    void approve(Long itemId) {
+        ItemEntity item = items.findById(itemId).orElseThrow();
+        item.setStatus(ItemStatus.ACTIVE);
+        items.save(item);
+    }
+
     AuctionResponse auction(int secondsLeft) {
         ItemResponse item = itemService.createItem(new ItemRequest("Camera", "Test item", new BigDecimal("100.00")), seller);
+        approve(item.getId());
         return auctionService.createAuction(new AuctionRequest(item.getId(), now.minusMinutes(1), now.plusSeconds(secondsLeft)), seller);
     }
 
@@ -126,7 +138,22 @@ class P3BackendTest {
             assertThrows(AuctionBusinessException.class, () -> itemService.createItem(new ItemRequest("Item", "", new BigDecimal(amount)), seller));
         }
         assertThrows(AuctionBusinessException.class, () -> itemService.createItem(new ItemRequest(" ", "", BigDecimal.TEN), seller));
-        assertThrows(AuctionBusinessException.class, () -> itemService.createItem(new ItemRequest("Item", "", BigDecimal.TEN), bidder));
+        Long admin = user("admin", UserRole.ADMIN);
+        assertThrows(AuctionBusinessException.class, () -> itemService.createItem(new ItemRequest("Item", "", BigDecimal.TEN), admin));
+    }
+
+    @Test void ordinaryAccountCanSellAndBidButCannotBidOnOwnItem() {
+        ItemResponse item = itemService.createItem(new ItemRequest("Bidder's item", "", BigDecimal.TEN), bidder);
+        approve(item.getId());
+        AuctionResponse own = auctionService.createAuction(
+                new AuctionRequest(item.getId(), now.minusMinutes(1), now.plusMinutes(5)), bidder);
+        assertThrows(AuctionBusinessException.class, () -> bid(own.getId(), bidder, "20"));
+        bid(own.getId(), seller, "20");
+        assertEquals(seller, auctionService.getAuctionById(own.getId()).getHighestBidderId());
+        UserEntity disabled = users.findById(otherBidder).orElseThrow();
+        disabled.setStatus(UserStatus.INACTIVE); users.save(disabled);
+        assertThrows(AuctionBusinessException.class, () -> itemService.createItem(
+                new ItemRequest("Blocked", "", BigDecimal.TEN), otherBidder));
     }
 
     @Test void auctionCreationAndProductProtection() {
@@ -198,6 +225,7 @@ class P3BackendTest {
 
     @Test void scheduledAuctionStartsOnFirstEligibleBid() {
         ItemResponse item = itemService.createItem(new ItemRequest("Item", "", BigDecimal.TEN), seller);
+        approve(item.getId());
         AuctionResponse auction = auctionService.createAuction(new AuctionRequest(item.getId(), now.plusMinutes(1), now.plusMinutes(5)), seller);
         assertEquals(AuctionStatus.OPEN, auction.getStatus());
         assertThrows(AuctionBusinessException.class, () -> bid(auction.getId(), bidder, "20"));
@@ -286,5 +314,53 @@ class P3BackendTest {
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.message").isNotEmpty());
         mvc.perform(get("/api/auctions/999999").header("Authorization", "Bearer " + bidderToken))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test void existingJwtCannotAccessApiAfterAccountIsBanned() throws Exception {
+        String token = jwt.generateToken(users.findById(bidder).orElseThrow());
+        mvc.perform(get("/api/items").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+        UserEntity user = users.findById(bidder).orElseThrow();
+        user.setStatus(UserStatus.BANNED); users.save(user);
+        mvc.perform(get("/api/items").header("Authorization", "Bearer " + token)).andExpect(status().isUnauthorized());
+    }
+
+    @Test void rejectsAuctionForUnapprovedItem() {
+        ItemResponse item = itemService.createItem(new ItemRequest("Draft", "", BigDecimal.TEN), seller); // DRAFT = chờ duyệt
+        assertThrows(AuctionBusinessException.class, () -> auctionService.createAuction(
+                new AuctionRequest(item.getId(), now.minusMinutes(1), now.plusMinutes(5)), seller));
+        approve(item.getId());
+        assertEquals(AuctionStatus.RUNNING, auctionService.createAuction(
+                new AuctionRequest(item.getId(), now.minusMinutes(1), now.plusMinutes(5)), seller).getStatus());
+    }
+
+    @Test void closesExpiredAuctionAndPicksWinnerOnce() {
+        AuctionResponse a = auction(60);
+        bid(a.getId(), bidder, "150");
+        bid(a.getId(), otherBidder, "200");
+        clock.set(now.plusSeconds(61));
+        assertEquals(1, closing.closeExpiredAuctions());
+        AuctionResponse done = auctionService.getAuctionById(a.getId());
+        assertEquals(AuctionStatus.FINISHED, done.getStatus());
+        assertEquals(otherBidder, done.getHighestBidderId());
+        assertEquals(0, new BigDecimal("200").compareTo(done.getCurrentPrice()));
+        assertEquals(ItemStatus.SOLD, items.findById(done.getItemId()).orElseThrow().getStatus());
+        assertEquals(0, closing.closeExpiredAuctions()); // đóng lần 2 không có tác dụng
+        assertThrows(AuctionBusinessException.class, () -> bid(a.getId(), bidder, "300")); // hết hạn không nhận bid
+    }
+
+    @Test void closesAuctionWithoutBidsHasNoWinner() {
+        AuctionResponse a = auction(30);
+        clock.set(now.plusSeconds(31));
+        assertEquals(1, closing.closeExpiredAuctions());
+        AuctionResponse done = auctionService.getAuctionById(a.getId());
+        assertEquals(AuctionStatus.FINISHED, done.getStatus());
+        assertNull(done.getHighestBidderId());
+    }
+
+    @Test void doesNotCloseBeforeEndTime() {
+        AuctionResponse a = auction(300);
+        clock.set(now.plusSeconds(299));
+        assertEquals(0, closing.closeExpiredAuctions());
+        assertEquals(AuctionStatus.RUNNING, auctionService.getAuctionById(a.getId()).getStatus());
     }
 }
