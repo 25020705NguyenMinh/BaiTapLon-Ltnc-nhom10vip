@@ -26,13 +26,7 @@ Có thể cài thêm Workbench từ <https://dev.mysql.com/downloads/workbench/>
 
 Mở Workbench, tạo kết nối đến `127.0.0.1`, cổng `3306`, user `root`, nhập mật khẩu vừa đặt. Mở SQL tab, thay `TU_DAT_MAT_KHAU_MANH` rồi chạy:
 
-```sql
-CREATE DATABASE IF NOT EXISTS auction
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'auction_app'@'localhost'
-  IDENTIFIED BY 'TU_DAT_MAT_KHAU_MANH';
-GRANT ALL PRIVILEGES ON auction.* TO 'auction_app'@'localhost';
-```
+
 
 User app chỉ được thao tác trong database `auction`. Nếu đã tạo `auction_app` từ trước, `CREATE USER IF NOT EXISTS` **không đổi mật khẩu**; muốn đổi hãy dùng `ALTER USER 'auction_app'@'localhost' IDENTIFIED BY 'MAT_KHAU_MOI';`.
 
@@ -90,8 +84,6 @@ Database mới trống là bình thường. Đăng ký và xác minh tài khoả
 
 ## Cả nhóm chạy với nhau
 
-Nếu mỗi bạn chạy `localhost` và MySQL riêng, dữ liệu của bốn máy **không tự đồng bộ**.
-Cách đơn giản khi thử cùng mạng Wi-Fi: một máy chạy server + MySQL; các máy còn lại chỉ chạy JavaFX, trỏ đến IP LAN của máy server:
 
 ```powershell
 $env:JAVA_TOOL_OPTIONS = '-Dauction.server.url=http://192.168.1.10:8080'

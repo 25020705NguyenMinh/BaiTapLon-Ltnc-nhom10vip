@@ -19,10 +19,10 @@ import vn.edu.auction.client.model.SessionData;
 
 /**
  * Lớp cha dùng chung cho mọi API client: BASE_URL, HttpClient, Jackson, JWT và xử lý lỗi.
- * Đổi địa chỉ server bằng: -Dauction.server.url=http://host:8080
+
  */
 public abstract class BaseApiClient {
-    protected static final String BASE_URL = trimSlash(System.getProperty("auction.server.url", "http://localhost:8080"));
+    protected static final String BASE_URL = trimSlash(System.getProperty("auction.server.url", "https://baitaplon-ltnc-nhom10vip.onrender.com"));
     protected static final HttpClient HTTP = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .connectTimeout(Duration.ofSeconds(5)).build();

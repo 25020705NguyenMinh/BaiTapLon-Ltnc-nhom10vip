@@ -19,8 +19,7 @@ Giữ cửa sổ server mở. Mở **PowerShell thứ hai**, cũng tại thư m�
 mvn -pl client javafx:run
 ```
 
-Server mặc định ở `http://localhost:8080`; kiểm tra bằng trình duyệt: `http://localhost:8080/api/health`.
-Nếu dùng JDK 26, bytecode vẫn được biên dịch theo Java 21. Có thể dùng JDK 21 để đồng nhất môi trường của nhóm.
+
 
 ## Thử luồng chính
 

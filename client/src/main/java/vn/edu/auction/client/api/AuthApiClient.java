@@ -20,8 +20,7 @@ import java.time.Duration;
  */
 public class AuthApiClient {
 
-    // Đổi địa chỉ server khi chạy: thêm VM option -Dauction.server.url=http://192.168.1.10:8080
-    private static final String DEFAULT_BASE_URL = "http://localhost:8080";
+    private static final String DEFAULT_BASE_URL = "https://baitaplon-ltnc-nhom10vip.onrender.com";
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
 
