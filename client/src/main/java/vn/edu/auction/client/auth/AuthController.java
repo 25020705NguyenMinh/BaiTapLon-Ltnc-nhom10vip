@@ -264,7 +264,7 @@ public class AuthController {
         startLocalCallbackServer();
 
         // 2. Mở trình duyệt gọi lên Spring Boot Server
-        String googleAuthUrl = "http://localhost:8080/oauth2/authorization/google";
+        String googleAuthUrl = "https://baitaplon-ltnc-nhom10vip.onrender.com/oauth2/authorization/google";
         openOAuthBrowser(googleAuthUrl);
     }
 
